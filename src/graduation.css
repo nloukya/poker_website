@@ -1,0 +1,1366 @@
+/* Graduation-inspired colors and original cosmic illustrations. */
+:root {
+  --bg: #fff8ef;
+  --panel: #fffdf6;
+  --text: #4c2865;
+  --border: #dfc4e7;
+  --muted: #9675a2;
+  --purple: #8846a9;
+  --pink: #eb78ad;
+  --lime: #8746ad;
+  --red: #d24786;
+  --card-ink: #532b6c;
+  --card-line: #673781;
+  --grad-pink: #ed91c0;
+  --grad-purple: #9f67bd;
+  --grad-blue: #a1d6e5;
+  --grad-orange: #f8b276;
+  --grad-yellow: #ffe6a2;
+}
+body {
+  background-color: #fff8ef;
+  background-image:
+    radial-gradient(ellipse at 0% 0%, #edddf370, transparent 52%),
+    radial-gradient(ellipse at 100% 45%, #fce2e85c, transparent 48%);
+  color: var(--text);
+}
+::selection {
+  background: #f7c6e0;
+  color: #6c3382;
+}
+.sidebar {
+  background: #fffaf0f5;
+  border-bottom: 2px solid #d9b9e3;
+  box-shadow: 0 3px 0 #f7e6e7;
+}
+.brand,
+.sidebar .brand {
+  color: #63347b;
+}
+.brand-icon {
+  color: #743b91;
+  background: #f8b375;
+  border: 2px solid #67327e;
+  box-shadow: 2px 2px 0 #e7a0c4;
+  border-radius: 10px 12px 10px 12px;
+  transform: rotate(-6deg);
+  font-size: 26px;
+}
+.nav-item {
+  color: #9b78a4;
+  border: 1px solid transparent;
+}
+.nav-item.active {
+  color: #fff5e7;
+  background: #9b61b8;
+  border-color: #77438f;
+  box-shadow: 2px 2px 0 #efb7d5;
+}
+.nav-item:hover {
+  background: #f2e1f4;
+  color: #7b4296;
+}
+.nav-item.active:hover {
+  background: #8f51ae;
+  color: #fff6e8;
+}
+.global-search {
+  color: #ad89b8;
+}
+.global-search input {
+  color: #78498e;
+}
+.global-search input::placeholder {
+  color: #aa88b4;
+}
+.header-actions > .icon-button {
+  color: #9e72b0;
+}
+.icon-button:hover {
+  color: #84479f;
+  background: #f4e3f5;
+}
+.page-heading h1 {
+  color: #69357f;
+  text-shadow: 2px 2px 0 #f0d7e9;
+}
+.overview-heading {
+  min-height: 238px;
+  position: relative;
+  border: 2px solid #8f4ba6;
+  border-radius: 22px 19px 23px 19px;
+  box-shadow: 5px 6px 0 #e9b3d4;
+  background: #9754b6;
+  padding: 36px 38px;
+  align-items: center;
+}
+.overview-heading:before {
+  content: "";
+  inset: 0;
+  z-index: -1;
+  background: url("/art/graduation-sky.svg") center center/cover no-repeat;
+  transform: none;
+  filter: none;
+  opacity: 1;
+  border-radius: inherit;
+}
+.overview-heading:after {
+  content: none;
+}
+.overview-heading h1 {
+  color: #fff0d1;
+  font-size: 51px;
+  text-shadow: 3px 3px 0 #78398e;
+  letter-spacing: -0.7px;
+}
+.overview-heading > .button {
+  background: #fff0d4;
+  color: #7e4192;
+  border: 2px solid #79408c;
+  box-shadow: 3px 3px 0 #d284aa;
+  align-self: flex-end;
+  padding: 11px 17px;
+  backdrop-filter: none;
+}
+.overview-heading > .button:hover {
+  background: #ffe4ac;
+  box-shadow: 4px 4px 0 #cf72a0;
+}
+.button.primary {
+  background: #a269bd;
+  color: #fff5df;
+  border: 1.5px solid #74408c;
+  box-shadow: 3px 3px 0 #f1bfd4;
+  border-radius: 10px 12px 10px 12px;
+}
+.button.primary:hover {
+  background: #9659b2;
+  color: #fff4da;
+  box-shadow: 4px 4px 0 #e7a7c8;
+}
+.button.secondary {
+  color: #9658ac;
+  background: #fcf1fa;
+  border-color: #e9ccec;
+}
+.button.secondary:hover {
+  background: #f3e0f7;
+  border-color: #d6a8df;
+}
+.button.danger-button {
+  background: #d66a9c;
+  color: #fff4ea;
+  border-color: #ac4680;
+}
+.text-button {
+  color: #aa70b6;
+}
+.text-button:hover {
+  color: #78448f;
+}
+.period-select,
+.sort-select,
+.date-filter {
+  background: #fffdf7;
+  border-color: #dec8e6;
+  box-shadow: 1px 2px 0 #f0dce9;
+  color: #b48ebc;
+}
+.period-select select,
+.sort-select select,
+.date-filter input {
+  color: #9a71aa;
+}
+.result-count {
+  color: #a080aa;
+}
+.positive {
+  color: #8d4bad !important;
+}
+.negative {
+  color: #cf4b86 !important;
+}
+.warning {
+  color: #bc8547 !important;
+}
+.stat-card {
+  border: 1.5px solid #dfc4e7;
+  background: #fffcf5;
+  box-shadow: 3px 4px 0 #f0dce8;
+  border-radius: 13px 15px 12px 15px;
+}
+.stat-card:nth-child(1) {
+  border-top: 4px solid #bd8ccf;
+}
+.stat-card:nth-child(2) {
+  border-top: 4px solid #e49bc0;
+}
+.stat-card:nth-child(3) {
+  border-top: 4px solid #8ec7dd;
+}
+.stat-card:nth-child(4) {
+  border-top: 4px solid #f3b67f;
+}
+.stat-top {
+  color: #aa8bb1;
+}
+.stat-top > svg {
+  color: #be90cb;
+}
+.stat-card:nth-child(2) .stat-top > svg {
+  color: #d98bb1;
+}
+.stat-card:nth-child(3) .stat-top > svg {
+  color: #8bb9cf;
+}
+.stat-card:nth-child(4) .stat-top > svg {
+  color: #d9a371;
+}
+.stat-value {
+  color: #815094;
+}
+.stat-muted {
+  color: #ac91b2;
+}
+.section-toolbar h2,
+.panel-heading h2 {
+  color: #8c579f;
+}
+.panel {
+  background: #fffdf7;
+  border: 1.5px solid #dfc6e8;
+  box-shadow: 3px 4px 0 #eedce9;
+  border-radius: 14px 16px 13px 15px;
+}
+.panel-heading {
+  background: #fffdf8;
+}
+.panel-heading h2 {
+  color: #9561a5;
+}
+.leaderboard th {
+  background: #f6e9f7;
+  border-top-color: #edd9f1;
+  border-bottom-color: #ead5ef;
+  color: #b48bbf;
+}
+.leaderboard td {
+  border-bottom-color: #f0dfef;
+}
+.leaderboard .leader-row,
+.leaderboard tbody tr:hover {
+  background: #fff1fa;
+}
+.player-cell strong {
+  color: #a37aaf;
+}
+.player-cell small {
+  color: #ba9cc2;
+}
+.leaderboard .games-cell {
+  color: #b194bc;
+}
+.rank {
+  color: #bb98c4;
+}
+.first-rank {
+  color: #c09956;
+}
+.sparkline.up {
+  color: #bf8bd2;
+}
+.sparkline.down {
+  color: #e597bb;
+}
+.chart-icon {
+  color: #b581c6;
+  background: #f6e6f8;
+  border: 1px solid #efd8f3;
+}
+.chart-legend .legend-item {
+  color: #b18cbd;
+}
+.session-card {
+  background: #fffdf7;
+  border: 1.5px solid #e4ccea;
+  box-shadow: 2px 3px 0 #efdfeb;
+  border-radius: 12px 15px 11px 14px;
+}
+.session-card:hover {
+  background: #fff9f3;
+  border-color: #c8a2d9;
+  box-shadow: 3px 4px 0 #eacfe3;
+}
+.session-card h3 {
+  color: #aa7ab7;
+  font-family: var(--card-hand);
+  font-size: 19px;
+  font-weight: 400;
+}
+.session-date,
+.session-card-meta > span {
+  color: #b79abe;
+}
+.session-winner {
+  border-top-color: #f0dfef;
+}
+.session-winner > span {
+  color: #b08bbb;
+}
+.avatar {
+  color: #9971ab;
+  border-color: #fff4e9;
+}
+.avatar-stack .avatar,
+.row-player-stack .avatar {
+  border-color: #fffdf6;
+}
+.empty-state {
+  color: #c8a2d4;
+}
+.empty-state > span {
+  background: #f6e6f6;
+  border: 1px solid #ead1ef;
+  color: #c8a0d4;
+}
+.empty-state h3 {
+  font-family: var(--card-hand);
+  color: #b18bc0;
+  font-size: 21px;
+}
+.empty-state p {
+  color: #bd9bc9;
+}
+/* Individual cards vary their skies and accent colors. */
+.trading-card {
+  --card-accent: #deb5ec;
+  --card-soft: #f4e4f8;
+  --card-shadow: #c9a2da;
+  --card-pop: #a06bbd;
+  --card-sky: #ce8ed0;
+  --card-sky-two: #f3acd0;
+  background: #fffcf4;
+  border-color: #75418c;
+  box-shadow: 5px 6px 0 var(--card-shadow);
+}
+.trading-card:nth-child(3n + 2) {
+  --card-accent: #f0b2cc;
+  --card-soft: #fff0e9;
+  --card-shadow: #ecc5b6;
+  --card-pop: #ca7fa9;
+  --card-sky: #ed9dbd;
+  --card-sky-two: #f9c790;
+}
+.trading-card:nth-child(3n) {
+  --card-accent: #b8d6e9;
+  --card-soft: #eff5fa;
+  --card-shadow: #c2d2ea;
+  --card-pop: #94add3;
+  --card-sky: #b0cde6;
+  --card-sky-two: #d6b0e8;
+}
+.trading-name-row h2 {
+  color: #9c70af;
+  font-weight: 500;
+}
+.trading-rank {
+  background: #ffe9b7;
+  border-color: #a77aaf;
+  box-shadow: 2px 2px 0 #e4b5d4;
+  border-radius: 14px 16px 15px 17px;
+  transform: rotate(-6deg);
+}
+.trading-rank > span {
+  color: #bc9cc4;
+}
+.trading-rank > strong {
+  color: #ad7fbc;
+}
+.trading-photo,
+.trading-card:nth-child(3n + 2) .trading-photo,
+.trading-card:nth-child(3n + 3) .trading-photo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--card-sky);
+  background-image:
+    url("/art/orbit-doodles.svg"),
+    linear-gradient(145deg, var(--card-sky), var(--card-sky-two));
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  border-color: #9865ae;
+  border-radius: 15px 13px 16px 12px;
+}
+.trading-photo .avatar.trading-portrait {
+  width: 173px;
+  max-width: 65%;
+  height: 173px;
+  border: 3px solid #f3d9ec;
+  outline: 2px solid #a16eb7;
+  border-radius: 50%;
+  background: #fff0d7;
+  box-shadow: 4px 4px 0 #b579b34d;
+  overflow: hidden;
+  mix-blend-mode: normal;
+}
+.trading-photo.illustrated-photo img {
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: normal;
+}
+.trading-photo.illustrated-photo .avatar {
+  mix-blend-mode: normal;
+}
+.trading-total > span,
+.tagline-copy > strong,
+.trading-enemy > span,
+.trading-stats > div > span {
+  color: #ac86b8;
+}
+.trading-total > strong {
+  color: var(--card-pop);
+}
+.trading-total > strong.card-loss,
+.trading-stats > div > strong.card-loss {
+  color: #d88bac !important;
+}
+.tagline-copy > span {
+  color: #c09acc;
+}
+.trading-tagline {
+  border-top-color: #efdef1;
+}
+.trading-tagline > svg {
+  color: #d0afd9;
+}
+.trading-tagline:hover .tagline-copy > span {
+  color: #a474b9;
+}
+.trading-enemy {
+  border-top-color: #e9ceef;
+}
+.trading-enemy > strong {
+  color: #c09ccd;
+}
+.trading-enemy > svg {
+  color: #cbaad6;
+}
+.trading-stats {
+  border-top-color: #eddaef;
+}
+.trading-stats > div > strong {
+  color: #b58ac8;
+}
+.trading-stats > div:last-child > strong {
+  color: #c7a9d5;
+}
+.trading-stats > div > small {
+  color: #ccb4d4;
+}
+.trading-footer {
+  border-top-color: #bd95cd;
+  background: var(--card-soft);
+}
+.trading-footer > span {
+  color: #c9acd6;
+}
+.trading-footer small {
+  color: #d5bfdc;
+}
+.trading-footer > button {
+  color: #c2a0d0;
+}
+.trading-footer > button:hover {
+  color: #ae82c0;
+}
+.profile-traits > div {
+  background: #fdf5ff;
+  border-color: #eedaf4;
+}
+.profile-traits span {
+  color: #bd96cb;
+}
+.profile-traits p {
+  color: #c9aad5;
+}
+/* Podium and session archive. */
+.metric-switch {
+  background: #f5e4f6;
+  border-color: #edd6f0;
+}
+.metric-switch > button {
+  color: #bc96cb;
+}
+.metric-switch > button.selected {
+  background: #fffbef;
+  border-color: #edd6ee;
+  color: #aa79bd;
+  box-shadow: 2px 2px 0 #e6c8ee;
+}
+.metric-switch > button:not(.selected):hover {
+  background: #fcf0ff;
+  color: #b282c3;
+}
+.podium-panel {
+  background: linear-gradient(155deg, #fff3fb, #f6e7fc 45%, #ffe6eb);
+  border: 1.5px solid #e6c8ef;
+  box-shadow: 3px 4px 0 #f0d9ea;
+  border-radius: 16px 18px 15px 17px;
+}
+.podium-panel:after {
+  inset: 0;
+  width: auto;
+  height: auto;
+  background: url("/art/orbit-doodles.svg") center center/cover no-repeat;
+  opacity: 0.24;
+  transform: none;
+  filter: none;
+  border-radius: 0;
+}
+.podium-title h2 {
+  color: #b88fc7;
+}
+.podium-crown {
+  color: #e1b46d;
+}
+.avatar.podium-avatar {
+  border-color: #fff8e7;
+  outline-color: #e2c5ed;
+  box-shadow: 3px 4px 0 #ecd8f5;
+}
+.podium-place-1 .avatar {
+  outline-color: #d3a4e6;
+  box-shadow: 4px 5px 0 #f0cadc;
+}
+.podium-person > strong {
+  color: #c09bce;
+}
+.podium-person > .podium-value {
+  color: #c5a2d5;
+}
+.podium-place-1 .podium-value {
+  color: #b88bcf;
+}
+.podium-block {
+  border-color: #d9b3e8;
+  background: linear-gradient(150deg, #e0b7f0, #cf9de4);
+}
+.podium-place-1 .podium-block {
+  border-color: #b981ce;
+  background: linear-gradient(155deg, #b983ce, #e6a0cd);
+}
+.podium-place-3 .podium-block {
+  border-color: #f0c2b2;
+  background: linear-gradient(150deg, #ffd7b7, #f3c1c2);
+}
+.podium-medal {
+  color: #c2a0d3;
+  background: #f9e7ff;
+  border-color: #edd5fa;
+}
+.podium-place-1 .podium-medal {
+  color: #dcb77c;
+  background: #ffedc6;
+  border-color: #f0d9b1;
+}
+.podium-place-3 .podium-medal {
+  color: #d6b1ad;
+  background: #fff0df;
+  border-color: #fbe0cc;
+}
+.rankings-count {
+  background: #f8eafd;
+  border-color: #efdbf8;
+  color: #ccaddb;
+}
+.rankings-range {
+  color: #c8afd4;
+}
+.rankings-table th {
+  background: #faf0fc;
+  border-color: #f1e0f6;
+  color: #bfa1ce;
+}
+.rankings-table th.sorted-column {
+  color: #b586ca;
+}
+.rankings-table td {
+  border-bottom-color: #f6eaf8;
+}
+.rankings-table .first-place-row {
+  background: #fff6fc;
+}
+.ranking-player strong {
+  color: #b68fc7;
+}
+.ranking-top-1 {
+  color: #cda6d8;
+  background: #f9ebfe;
+  border-color: #ecd5f5;
+}
+.rankings-table .rank-sessions {
+  color: #c3a1d1;
+}
+.rankings-scroll-hint {
+  background: #fff6fd;
+  border-color: #f2dff6;
+  color: #c6a5d4;
+}
+.session-row-card {
+  background: #fffdf7;
+  border: 1.5px solid #e4cbea;
+  box-shadow: 3px 4px 0 #f0dce9;
+  border-radius: 14px 16px 12px 15px;
+}
+.session-row-card:hover {
+  border-color: #d1a7e0;
+  background: #fffbf5;
+}
+.session-calendar {
+  border-color: #e8d2ef;
+  background: #fff4e5;
+}
+.session-calendar > span {
+  color: #d0afd9;
+  background: #f4e4fa;
+  border-color: #ecd9f3;
+}
+.session-calendar > strong {
+  color: #dfaf94;
+}
+.session-calendar > small {
+  color: #d4b5d9;
+}
+.session-row-title > h3 {
+  font-family: var(--card-hand);
+  font-size: 20px;
+  font-weight: 400;
+  color: #b38dc3;
+}
+.session-row-title > svg {
+  color: #d5b8df;
+}
+.session-row-meta,
+.session-row-meta > span > svg {
+  color: #cdb0d8;
+}
+.session-row-winner {
+  border-left-color: #f1e2f6;
+}
+.session-row-winner > span {
+  color: #cdb1d9;
+}
+.session-row-winner > strong {
+  color: #c1a0cd;
+}
+.session-row-winner > small {
+  color: #b28bc8;
+}
+.row-player-stack > span:not(.avatar) {
+  background: #f6e5fb;
+  border-color: #fffaf1;
+  color: #c5a1d4;
+}
+.archive-tabs > button {
+  color: #c8a7d5;
+}
+.archive-tabs > button.selected {
+  color: #b38bc4;
+}
+.archive-tabs > button > span {
+  color: #c8a8d5;
+  background: #f9edfd;
+  border-color: #efddf6;
+}
+.archive-tabs > button.selected > span {
+  background: #f4e0fc;
+  border-color: #e7cdef;
+  color: #c09ace;
+}
+.session-month > h2 {
+  color: #bf9bce;
+}
+.session-month > h2 > span {
+  background: #fff1fc;
+  color: #d4b7df;
+  border-color: #f4e3f7;
+}
+.session-row-actions {
+  border-top-color: #f4e5f8;
+}
+.add-highlight-button,
+.row-edit {
+  color: #d0b0dd;
+}
+.add-highlight-button {
+  border-color: #f2e0f8;
+  background: #fff9fe;
+}
+.highlight-chip {
+  color: #c19ad2;
+  background: #fcf1ff;
+  border-color: #efdcf8;
+}
+.highlight-chip:hover,
+.highlight-chip.selected {
+  color: #b489c9;
+  background: #f7e7ff;
+  border-color: #e4c7f3;
+}
+.row-open {
+  color: #d2b4df;
+  border-color: #f0e0f7;
+  background: #fffafd;
+}
+.row-highlights {
+  background: #fffbff;
+  border-top-color: #f3e5f8;
+}
+/* Dialogs retain clear form surfaces. */
+.modal-overlay {
+  background: #7142822b;
+  backdrop-filter: blur(8px);
+}
+.modal {
+  border: 1.5px solid #dfbee9;
+  background: #fffdf8;
+  box-shadow:
+    6px 7px 0 #d4ace04f,
+    0 24px 80px #9764ac24;
+}
+.modal h2 {
+  color: #ae82c1;
+}
+.modal-close {
+  color: #c5a1d6;
+}
+.form-label,
+.session-form-heading h3 {
+  color: #bd98cc;
+}
+.form-label input,
+.form-label textarea,
+.form-label select,
+.entry-table td > input {
+  background: #fffafc;
+  border-color: #ebd7f2;
+  color: #bc93cf;
+}
+.form-label input:focus,
+.form-label textarea:focus,
+.form-label select:focus {
+  border-color: #d6a8e7;
+  box-shadow: 0 0 0 3px #f3dffb;
+}
+.form-label input::placeholder,
+.form-label textarea::placeholder {
+  color: #d0b6dc;
+}
+.input-hint,
+.photo-upload small,
+.modal-description,
+.settings-section > p,
+.video-storage-note,
+.new-session-video-note {
+  color: #c7a9d6;
+}
+.form-actions,
+.settings-section {
+  border-top-color: #f3e2f8;
+}
+.entry-table th {
+  color: #c7a5d6;
+  border-bottom-color: #edd8f4;
+}
+.entry-table td {
+  border-bottom-color: #f5e8f9;
+}
+.player-checkbox {
+  color: #bb92ce;
+}
+.player-checkbox > input {
+  border-color: #dcbfe9;
+  background: #fffcf5;
+}
+.player-checkbox > input:checked {
+  background: #b682cf;
+  border-color: #b682cf;
+}
+.entry-table td > input:disabled {
+  background: #fcf6ff;
+  border-color: #f6e9fb;
+  color: #ddc8e6;
+}
+.entry-table tr.unselected .player-checkbox > span:last-child {
+  color: #d9c1e4;
+}
+.session-totals,
+.profile-stats {
+  background: #fff6fc;
+  border-color: #f1dff8;
+}
+.session-totals > span,
+.profile-stats span {
+  color: #c7a3d6;
+}
+.session-totals strong,
+.profile-stats strong {
+  color: #bc91cf;
+}
+.detail-table th {
+  color: #c5a3d2;
+  border-bottom-color: #efdcf6;
+}
+.detail-table td {
+  color: #c3a0d2;
+  border-bottom-color: #f7eaf9;
+}
+.detail-player > span {
+  color: #be96ce;
+}
+.detail-player small {
+  color: #d5b6e0;
+}
+.session-notes {
+  background: #fff6fc;
+  border-color: #f6e5f9;
+}
+.session-notes > span {
+  color: #d0b0de;
+}
+.session-notes p {
+  color: #c4a2d2;
+}
+.profile-history-title {
+  color: #be97ce;
+}
+.profile-history > button {
+  border-bottom-color: #f7eafa;
+}
+.profile-history > button strong {
+  color: #c49dd6;
+}
+.profile-history > button small {
+  color: #d3b8e0;
+}
+.history-result-icon {
+  color: #c69bd9;
+  background: #faebff;
+}
+.history-result-icon.loss {
+  color: #dda8c3;
+  background: #fff0f8;
+}
+.settings-section h3 {
+  color: #c09ace;
+}
+.clip-editor {
+  border-top-color: #f2e0f8;
+}
+.highlights-heading h3 {
+  color: #bd95ce;
+}
+.highlight-heading-icon {
+  background: #f9eafd;
+  color: #cfade0;
+  border-color: #f1def8;
+}
+.highlights-heading p,
+.clip-caption > div > span,
+.clip-edit-row small {
+  color: #cfb1df;
+}
+.clip-player {
+  background: #fffaf8;
+  border-color: #efdcf6;
+}
+.clip-caption strong,
+.clip-edit-row strong {
+  color: #bf98d1;
+}
+.clip-download {
+  color: #cea9df;
+  border-color: #efdcf7;
+  background: #fff6ff;
+}
+.video-upload-zone {
+  background: #fff8fd;
+  border-color: #e5c6f0;
+}
+.video-upload-zone > span:first-child {
+  background: #f9e8ff;
+  color: #d0ade2;
+  border-color: #efdbf8;
+}
+.video-upload-zone > strong {
+  color: #c59ed6;
+}
+.video-upload-zone > p,
+.video-upload-zone > small {
+  color: #d5b8e2;
+}
+.video-upload-zone:hover,
+.video-upload-zone.is-dragging {
+  background: #fff1fd;
+  border-color: #d5abe7;
+}
+.clip-edit-row {
+  background: #fffaff;
+  border-color: #f0ddf7;
+}
+.clip-edit-row.new-clip {
+  background: #fcf2ff;
+  border-color: #e2c0ef;
+}
+.award-card {
+  background: #fffdf7;
+  border-color: #ead2ef;
+  box-shadow: 3px 4px 0 #f1dfeb;
+  border-radius: 14px 17px 13px 16px;
+}
+.award-card h2 {
+  color: #bf97cf;
+}
+.award-card .award-player strong {
+  color: #c8a6d6;
+}
+.award-medal {
+  color: #c9a1da;
+  background: #f9e8ff;
+}
+.award-peach .award-medal {
+  color: #dfb899;
+  background: #fff1df;
+}
+.award-blue .award-medal {
+  color: #b2c9e1;
+  background: #f0f8ff;
+}
+.award-pink .award-medal {
+  color: #dfafcd;
+  background: #fff0fa;
+}
+.toast {
+  background: #fff8ef;
+  border-color: #e1c5ec;
+  color: #b38dc7;
+  box-shadow:
+    3px 4px 0 #efd4e6,
+    0 7px 30px #ad81c11a;
+}
+.toast > span {
+  background: #f5e2ff;
+  color: #c49bd9;
+}
+.toast > button {
+  color: #cfb0df;
+}
+/* Saturated accents, with readable text on the cream surfaces. */
+.brand,
+.sidebar .brand {
+  color: #653378;
+}
+.nav-item {
+  color: #9771a1;
+}
+.stat-value {
+  color: #875099;
+}
+.stat-top,
+.stat-muted,
+.result-count,
+.session-date,
+.session-card-meta > span,
+.session-winner > span {
+  color: #a987b2;
+}
+.player-cell strong,
+.ranking-player strong {
+  color: #ab7db6;
+}
+.player-cell small,
+.rankings-range {
+  color: #b694c2;
+}
+.trading-name-row h2 {
+  color: #935fa7;
+}
+.trading-rank > strong {
+  color: #a575b5;
+}
+.trading-total > span,
+.tagline-copy > strong,
+.trading-enemy > span,
+.trading-stats > div > span {
+  color: #ab83b8;
+}
+.tagline-copy > span,
+.trading-enemy > strong {
+  color: #b78bc7;
+}
+.trading-stats > div > small {
+  color: #c09acb;
+}
+.form-label,
+.session-form-heading h3,
+.settings-section h3 {
+  color: #af86c0;
+}
+.form-label input,
+.form-label textarea,
+.form-label select,
+.player-checkbox,
+.detail-player > span,
+.profile-history > button strong {
+  color: #ab7abd;
+}
+.input-hint,
+.modal-description,
+.settings-section > p,
+.video-storage-note,
+.new-session-video-note {
+  color: #bb96cb;
+}
+@media (min-width: 1500px) {
+  .overview-heading {
+    min-height: 254px;
+  }
+  .overview-heading h1 {
+    font-size: 56px;
+  }
+  .trading-photo .avatar.trading-portrait {
+    width: 187px;
+    height: 187px;
+  }
+  .session-row-title > h3 {
+    font-size: 22px;
+  }
+}
+@media (max-width: 1000px) {
+  .overview-heading {
+    min-height: 220px;
+    padding: 30px;
+  }
+  .overview-heading h1 {
+    font-size: 46px;
+  }
+  .trading-photo .avatar.trading-portrait {
+    width: 152px;
+    height: 152px;
+  }
+  .session-row-title > h3 {
+    font-size: 18px;
+  }
+}
+@media (max-width: 700px) {
+  .overview-heading {
+    min-height: 203px;
+    padding: 25px;
+  }
+  .overview-heading h1 {
+    font-size: 42px;
+  }
+  .overview-heading:before {
+    background-position: 59% center;
+  }
+  .trading-photo .avatar.trading-portrait {
+    width: 135px;
+    height: 135px;
+  }
+  .session-row-title > h3 {
+    font-size: 18px;
+  }
+  .sidebar nav {
+    background: #fff9ef;
+    border-color: #e5c9ed;
+    box-shadow: 4px 5px 0 #efd0e4;
+  }
+  .sidebar-scrim {
+    background: #9a65ad20;
+    backdrop-filter: blur(3px);
+  }
+}
+@media (max-width: 540px) {
+  .overview-heading {
+    min-height: 208px;
+    padding: 24px;
+    border-radius: 18px 16px 19px 16px;
+    box-shadow: 4px 5px 0 #edbbd9;
+    align-items: flex-start;
+  }
+  .overview-heading h1 {
+    font-size: 39px;
+    position: relative;
+    z-index: 1;
+    text-shadow: 2px 2px 0 #8a489d;
+  }
+  .overview-heading:before {
+    background-position: 68% center;
+    background-size: auto 100%;
+  }
+  .overview-heading > .button {
+    position: absolute;
+    left: 24px;
+    bottom: 23px;
+    right: auto;
+    align-self: auto;
+    font-size: 13px;
+    padding: 9px 13px;
+    box-shadow: 2px 3px 0 #cb8bad;
+  }
+  .trading-photo .avatar.trading-portrait {
+    width: 162px;
+    height: 162px;
+  }
+  .trading-name-row h2 {
+    color: #a274b4;
+  }
+  .trading-rank {
+    border-color: #bb93c7;
+  }
+  .trading-total > strong {
+    font-size: 37px;
+  }
+  .podium-person > strong {
+    color: #bb95cd;
+  }
+  .podium-place-1 .podium-value {
+    color: #b78acd;
+  }
+  .rankings-scroll-hint {
+    font-size: 8px;
+  }
+  .session-row-title > h3 {
+    font-size: 17px;
+    line-height: 1.4;
+  }
+  .session-row-winner {
+    border-top-color: #f5e7f9;
+  }
+  .session-row-winner > strong {
+    color: #c4a2d0;
+  }
+  .session-row-actions {
+    border-top-color: #f5e7f9;
+  }
+  .session-calendar > strong {
+    color: #ddb391;
+  }
+  .row-highlights {
+    background: #fffbfe;
+  }
+  .modal {
+    border-radius: 15px;
+    box-shadow:
+      4px 5px 0 #d4ace04f,
+      0 20px 70px #9764ac24;
+  }
+  .session-card h3 {
+    font-size: 19px;
+  }
+  .award-card h2 {
+    font-size: 15px;
+  }
+}
+@media (max-width: 370px) {
+  .overview-heading {
+    padding: 21px;
+    min-height: 195px;
+  }
+  .overview-heading h1 {
+    font-size: 36px;
+  }
+  .overview-heading > .button {
+    left: 21px;
+    bottom: 22px;
+    font-size: 12px;
+  }
+  .trading-photo .avatar.trading-portrait {
+    width: 144px;
+    height: 144px;
+  }
+  .trading-total > strong {
+    font-size: 33px;
+  }
+  .session-row-title > h3 {
+    font-size: 16px;
+  }
+}
+/* Strong album-inspired accents; cream stays the neutral base. */
+.nav-item {
+  color: #92609d;
+}
+.nav-item.active {
+  background: #8b46a6;
+  border-color: #653079;
+  box-shadow: 2px 2px 0 #e990be;
+}
+.button.primary {
+  background: linear-gradient(110deg, #9950b5, #cc65a8);
+  border-color: #754087;
+  color: #fff4db;
+  box-shadow: 3px 3px 0 #ecabc9;
+}
+.button.primary:hover {
+  background: linear-gradient(110deg, #8b42a6, #bd529a);
+}
+.overview-heading > .button {
+  background: #ffedc8;
+  color: #764087;
+  border-color: #7c428e;
+  box-shadow: 3px 3px 0 #c879a7;
+}
+.page-heading h1 {
+  color: #74398b;
+}
+.trading-card {
+  --card-pop: #8b45ad;
+  --card-sky: #bd80cd;
+  --card-sky-two: #ed9dc6;
+  --card-shadow: #c295d7;
+}
+.trading-card:nth-child(3n + 2) {
+  --card-pop: #bd629b;
+  --card-sky: #eea4c0;
+  --card-sky-two: #f8c589;
+  --card-shadow: #edc0aa;
+}
+.trading-card:nth-child(3n) {
+  --card-pop: #7594c0;
+  --card-sky: #a0cae6;
+  --card-sky-two: #cfa4df;
+  --card-shadow: #b6cce6;
+}
+.trading-name-row h2 {
+  color: #7f4b94;
+}
+.trading-rank {
+  border-color: #9e69b5;
+  background: #ffe3a0;
+  box-shadow: 2px 2px 0 #d499c7;
+}
+.trading-rank > span {
+  color: #b087b8;
+}
+.trading-rank > strong {
+  color: #9c6bad;
+}
+.trading-total > span,
+.tagline-copy > strong,
+.trading-enemy > span,
+.trading-stats > div > span {
+  color: #9a70ac;
+}
+.tagline-copy > span,
+.trading-enemy > strong {
+  color: #b48ac5;
+}
+.trading-stats > div > strong {
+  color: #a373ba;
+}
+.trading-stats > div:last-child > strong {
+  color: #b08bc4;
+}
+.trading-stats > div > small {
+  color: #b794c3;
+}
+.trading-footer > button {
+  color: #a678ba;
+}
+.trading-footer > span {
+  color: #b698c7;
+}
+.trading-footer small {
+  color: #c0a5ce;
+}
+.trading-total > strong.card-loss,
+.trading-stats > div > strong.card-loss {
+  color: #ce76a5 !important;
+}
+.stat-card:nth-child(1) {
+  border-top-color: #b176cc;
+}
+.stat-card:nth-child(2) {
+  border-top-color: #de8ab5;
+}
+.stat-card:nth-child(3) {
+  border-top-color: #8abfd8;
+}
+.stat-card:nth-child(4) {
+  border-top-color: #f1b175;
+}
+.stat-value {
+  color: #875099;
+}
+.stat-top,
+.stat-muted {
+  color: #a986b2;
+}
+.podium-person > strong {
+  color: #b08ac4;
+}
+.podium-place-1 .podium-value {
+  color: #aa78c1;
+}
+.podium-place-1 .podium-block {
+  background: linear-gradient(145deg, #b47ccc, #e3a0ca);
+  border-color: #b37cc8;
+}
+.session-row-title > h3 {
+  color: #a77db8;
+}
+.session-row-winner > strong {
+  color: #b48fc4;
+}
+.ranking-player strong {
+  color: #a77cb9;
+}
+.form-label,
+.session-form-heading h3,
+.settings-section h3 {
+  color: #aa81bc;
+}
+.form-label input,
+.form-label textarea,
+.form-label select,
+.entry-table td > input {
+  color: #a477b9;
+}
+.modal h2 {
+  color: #a473b9;
+}
+.page-heading.overview-heading h1 {
+  color: #fff0d1;
+  text-shadow: 3px 3px 0 #77368e;
+}
+.trading-name-row h2 {
+  color: #86529b;
+}
+.trading-total > span,
+.tagline-copy > strong,
+.trading-enemy > span,
+.trading-stats > div > span {
+  color: #a175b3;
+}
+.tagline-copy > span,
+.trading-enemy > strong {
+  color: #ae84bd;
+}
+.trading-footer > button {
+  color: #aa7cbe;
+}
+.button.primary {
+  background: linear-gradient(110deg, #8840a4, #b0478f);
+}
+.button.primary:hover {
+  background: linear-gradient(110deg, #7b3597, #a23b81);
+}
+.overview-heading > .button {
+  background: #ffedc8;
+}
+.overview-heading > .button:hover {
+  background: #ffe4ac;
+}
