@@ -1,4 +1,13 @@
-export const MAX_CLIP_SIZE = 100 * 1024 * 1024;
+import {
+  cloud,
+  readSharedTable,
+  saveSharedTable,
+  stageCloudClips,
+  removeCloudFiles,
+  discardStagedClips,
+  cloudChanged,
+} from "./cloud.js";
+export const MAX_CLIP_SIZE = (cloud ? 50 : 100) * 1024 * 1024;
 export const MEDIA_CHANGE_EVENT = "poker-face-media-change";
 const DB_NAME = "poker-face-highlights";
 let opening;
@@ -11,7 +20,8 @@ export function validateVideoFile(file) {
   )
     return "Choose a video file: MP4, WebM, MOV, M4V, or Ogg.";
   if (!file.size) return "This video is empty. Choose another file.";
-  if (file.size > MAX_CLIP_SIZE) return "Each video must be 100 MB or smaller.";
+  if (file.size > MAX_CLIP_SIZE)
+    return `Each video must be ${cloud ? 50 : 100} MB or smaller.`;
   return "";
 }
 
@@ -64,6 +74,12 @@ function storageError(error) {
 }
 
 export async function listSessionClips(sessionId) {
+  if (cloud) {
+    const { clip_manifest } = await readSharedTable();
+    return clip_manifest
+      .filter((c) => !sessionId || c.sessionId === sessionId)
+      .sort((a, b) => a.createdAt - b.createdAt);
+  }
   const db = await database();
   return new Promise((resolve, reject) => {
     const store = db.transaction("clips", "readonly").objectStore("clips");
@@ -77,6 +93,19 @@ export async function listSessionClips(sessionId) {
 }
 
 export async function getClipBlob(id) {
+  if (cloud) {
+    const { clip_manifest } = await readSharedTable();
+    const clip = clip_manifest.find((c) => c.id === id);
+    if (!clip) throw new Error("This video has been removed.");
+    const { data, error } = await cloud.storage
+      .from("highlights")
+      .download(clip.path);
+    if (error)
+      throw new Error(
+        "Couldn’t load this video. Check your connection and try again.",
+      );
+    return data;
+  }
   const db = await database();
   return new Promise((resolve, reject) => {
     const request = db
@@ -102,6 +131,27 @@ export async function saveSessionClips(
   for (const clip of additions) {
     const error = validateVideoFile(clip.file);
     if (error) throw new Error(error);
+  }
+  if (cloud) {
+    const staged = await stageCloudClips(sessionId, additions);
+    let committed = false;
+    try {
+      const before = await readSharedTable();
+      const after = await saveSharedTable(before.payload, before.revision, {
+        sessionId,
+        additions: staged,
+        removals,
+      });
+      committed = true;
+      const kept = new Set(after.clip_manifest.map((c) => c.path));
+      await removeCloudFiles(
+        before.clip_manifest.filter((c) => !kept.has(c.path)),
+      );
+      cloudChanged();
+      return;
+    } finally {
+      if (!committed) await discardStagedClips(staged);
+    }
   }
   try {
     const db = await database();
@@ -155,15 +205,19 @@ async function removeIds(ids) {
   changed();
 }
 export async function deleteSessionClips(sessionId) {
+  if (cloud)
+    throw new Error("Delete shared sessions through the session editor.");
   const clips = await listSessionClips(sessionId);
   await removeIds(clips.map((c) => c.id));
 }
 export async function pruneSessionClips(sessionIds) {
+  if (cloud) return;
   const ids = new Set(sessionIds);
   const clips = await listSessionClips();
   await removeIds(clips.filter((c) => !ids.has(c.sessionId)).map((c) => c.id));
 }
 export async function clearSessionClips() {
+  if (cloud) return;
   const db = await database();
   await new Promise((resolve, reject) => {
     const tx = db.transaction(["clips", "files"], "readwrite");

@@ -18,7 +18,11 @@ export function Avatar({ player, size = "", crown = false }) {
     >
       {player?.photo && !failed ? (
         <img
-          src={player.photo}
+          src={
+            player.photo.startsWith("/players/")
+              ? `${import.meta.env.BASE_URL}${player.photo.slice(1)}`
+              : player.photo
+          }
           alt={player.name}
           onError={() => setFailed(true)}
         />

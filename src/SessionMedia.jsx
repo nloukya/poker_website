@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { cloud } from "./cloud";
 import {
   Film,
   Plus,
@@ -44,8 +45,10 @@ export function useClipLibrary(sessionId) {
         });
     refresh();
     window.addEventListener(MEDIA_CHANGE_EVENT, refresh);
+    const interval = cloud ? setInterval(refresh, 15000) : null;
     return () => {
       active = false;
+      if (interval) clearInterval(interval);
       window.removeEventListener(MEDIA_CHANGE_EVENT, refresh);
     };
   }, [sessionId]);
@@ -106,7 +109,10 @@ function ClipPlayer({ clip }) {
       <div className="clip-caption">
         <div>
           <strong title={clip.name}>{clip.name}</strong>
-          <span>{fileSize(clip.size)} · Saved on this browser</span>
+          <span>
+            {fileSize(clip.size)} ·{" "}
+            {cloud ? "Shared with your table" : "Saved on this browser"}
+          </span>
         </div>
         {url && (
           <a
@@ -261,7 +267,9 @@ export function ClipEditor({
         <p>
           Or <span>choose videos</span> from your device.
         </p>
-        <small>Up to 100 MB per clip · MP4 or WebM recommended</small>
+        <small>
+          Up to {cloud ? 50 : 100} MB per clip · MP4 or WebM recommended
+        </small>
         <input
           type="file"
           accept="video/mp4,video/webm,video/quicktime,video/x-m4v,video/ogg,.mp4,.webm,.mov,.m4v,.ogg,.ogv"

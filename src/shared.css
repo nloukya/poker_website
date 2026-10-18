@@ -1,0 +1,49 @@
+.access-screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at 10% 15%, #ffd1ea, transparent 55%),
+    radial-gradient(ellipse at 90% 85%, #c5bbff, transparent 60%), #fff8ee;
+}
+.access-card {
+  width: min(100%, 420px);
+  padding: 36px;
+  background: #fffaf3;
+  border: 2px solid #392053;
+  border-radius: 26px;
+  box-shadow: 7px 8px 0 #392053;
+}
+.access-card .brand {
+  margin-bottom: 28px;
+  font-family: "Fredoka Variable", sans-serif;
+  font-size: 30px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.access-card h1 {
+  font-family: "Fredoka Variable", sans-serif;
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+.access-card p {
+  line-height: 1.6;
+}
+.access-card input {
+  width: 100%;
+  min-width: 0;
+}
+.access-card .button {
+  margin-top: 16px;
+  width: 100%;
+}
+.shared-status {
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) {
+  .access-card {
+    padding: 26px;
+  }
+}

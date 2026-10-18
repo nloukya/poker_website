@@ -2,6 +2,10 @@
 
 A responsive poker tracker with a Graduation-inspired purple, pink, orange, and sky-blue palette, original cosmic SVG illustrations, player profiles, session records, and winnings.
 
+## Share with friends
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for GitHub Pages and Supabase setup. Hosted mode requires sign-in and approved membership; players, photos, sessions, and videos are shared across phones. The Pages workflow deploys on pushes to `main` after you enable it and add the public Supabase configuration.
+
 ## Run locally
 
 Requires Node.js 20.19+ (Node.js 24 is verified) and npm.
@@ -38,7 +42,7 @@ Six demo players and eight balanced sample games are included. Dates are relativ
 
 ## Storage and privacy
 
-Records and resized player photos are stored in this browser’s `localStorage`. Video files are stored separately in IndexedDB. No account, database, external API, or credentials are needed. Records do not automatically sync between browsers or devices. Export backups regularly and before clearing browser data. Restoring a backup replaces current records. JSON backups include player traits and session results, but **do not include videos**. Download videos individually from the highlight reel. Restoring a backup keeps existing clips only for matching session IDs; clips for sessions removed by the restore are discarded.
+In local mode (without Supabase configuration), records and resized player photos are stored in this browser’s `localStorage`. Video files are stored separately in IndexedDB. No account, database, external API, or credentials are needed. Records do not automatically sync between browsers or devices. Export backups regularly and before clearing browser data. Restoring a backup replaces current records. JSON backups include player traits and session results, but **do not include videos**. Download videos individually from the highlight reel. Restoring a backup keeps existing clips only for matching session IDs; clips for sessions removed by the restore are discarded.
 
 Player photos are cropped to a 240 × 240 square and compressed before saving. JPG, PNG, WebP, and GIF uploads up to 8 MB are supported; animated images become a still image. Bundled fonts and sample avatars work without third-party requests. Sample-avatar attribution is in `public/players/README.md`.
 
@@ -50,7 +54,7 @@ Card ranks, total winnings, total sessions, and average winnings use lifetime re
 
 Open a saved game night and choose **Edit session**, or click **Add highlights** on its session row. Select or drop video files, then **Save changes**. Uploads and removals are staged until save; Cancel leaves existing clips unchanged. Removing a saved clip has a confirmation and an Undo option before saving. Deleting a session also deletes its stored clips. Clearing all records also clears videos.
 
-Files may be up to 100 MB each. MP4, WebM, MOV, M4V, and Ogg extensions are accepted; MP4 and WebM are recommended because playback depends on browser codec support. The original file can be downloaded even if the browser cannot play its codec. Browser storage capacity varies; storage failures leave existing videos unchanged. Videos do not sync across devices or belong to a server upload service.
+Files may be up to 100 MB each. MP4, WebM, MOV, M4V, and Ogg extensions are accepted; MP4 and WebM are recommended because playback depends on browser codec support. The original file can be downloaded even if the browser cannot play its codec. Browser storage capacity varies; storage failures leave existing videos unchanged. Local-mode videos do not sync across devices. In shared mode they use private Supabase storage and are limited to 50 MB each.
 
 This app records game results; it does not process bets, payments, or currency conversions.
 
@@ -58,7 +62,9 @@ This app records game results; it does not process bets, payments, or currency c
 
 ```sh
 npm test
+npm run test:database
 npm run test:e2e
+npm run test:shared
 npm run build
 ```
 
@@ -68,6 +74,9 @@ The Playwright configuration reuses an existing development server or starts one
 
 ## Project layout
 
+- `src/cloud.js`, `src/useTableRecords.js`, and `src/SharedAccess.jsx` — shared storage, conflict checking, polling, and sign-in.
+- `supabase/setup.sql` — repeatable database and private-video policies.
+- `.github/workflows/pages.yml` — GitHub Pages publishing.
 - `src/main.jsx` — application shell, forms, dialogs, and browser record storage.
 - `src/ClubPages.jsx` — collectible cards, podium leaderboard, and session archive.
 - `src/SessionMedia.jsx` — staged video uploads, playback, and downloads.

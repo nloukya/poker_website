@@ -49,6 +49,10 @@ import "./club.css";
 import "./player-cards.css";
 import "./graduation.css";
 import { Avatar, PeriodSelect } from "./ui";
+import { cloud, stageCloudClips, discardStagedClips } from "./cloud";
+import { useTableRecords } from "./useTableRecords";
+import { SharedAccess } from "./SharedAccess";
+import "./shared.css";
 import { Players, LeaderboardPage, Sessions } from "./ClubPages";
 import { SessionHighlights, ClipEditor } from "./SessionMedia";
 import {
@@ -86,7 +90,10 @@ function loadData() {
 }
 
 function App() {
-  const [data, setData] = useState(loadData);
+  const store = useTableRecords(loadData);
+  const { data } = store;
+  const setData = (updater, clips) =>
+    store.update(updater, modal?.revision, clips);
   const [page, setPage] = useState(() =>
     NAV.some((n) => n.id === location.hash.slice(1))
       ? location.hash.slice(1)
@@ -94,12 +101,36 @@ function App() {
   );
   const [period, setPeriod] = useState("all");
   const [query, setQuery] = useState("");
-  const [modal, setModal] = useState(null);
+  const [modal, setModalState] = useState(null);
+  const setModal = (next) =>
+    setModalState(
+      next
+        ? {
+            ...next,
+            ...(next.player
+              ? {
+                  player:
+                    data.players.find((p) => p.id === next.player.id) ||
+                    next.player,
+                }
+              : {}),
+            ...(next.session
+              ? {
+                  session:
+                    data.sessions.find((s) => s.id === next.session.id) ||
+                    next.session,
+                }
+              : {}),
+            revision: store.getRevision(),
+          }
+        : null,
+    );
   const [toast, setToast] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [storageError, setStorageError] = useState(false);
 
   useEffect(() => {
+    if (cloud) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       setStorageError(false);
@@ -141,8 +172,8 @@ function App() {
     [data.players, filteredSessions],
   );
   const fmt = (n, signed = false) => money(n, data.currency, signed);
-  const savePlayer = (player) => {
-    setData((d) => ({
+  const savePlayer = async (player) => {
+    await setData((d) => ({
       ...d,
       players: d.players.some((p) => p.id === player.id)
         ? d.players.map((p) => (p.id === player.id ? player : p))
@@ -151,28 +182,46 @@ function App() {
     setModal(null);
     notify("Player saved.");
   };
-  const saveSession = (session) => {
-    setData((d) => ({
-      ...d,
-      sessions: d.sessions.some((s) => s.id === session.id)
-        ? d.sessions.map((s) => (s.id === session.id ? session : s))
-        : [...d.sessions, session],
-    }));
-    setModal(null);
-    notify("Session saved.");
+  const saveSession = async (session, changes = {}) => {
+    let uploaded = [];
+    let committed = false;
+    try {
+      if (cloud)
+        uploaded = await stageCloudClips(session.id, changes.additions || []);
+      else if (changes.additions?.length || changes.removals?.length)
+        await saveSessionClips(session.id, changes.additions, changes.removals);
+      await setData(
+        (d) => ({
+          ...d,
+          sessions: d.sessions.some((s) => s.id === session.id)
+            ? d.sessions.map((s) => (s.id === session.id ? session : s))
+            : [...d.sessions, session],
+        }),
+        {
+          sessionId: session.id,
+          additions: uploaded,
+          removals: changes.removals || [],
+        },
+      );
+      committed = true;
+      setModal(null);
+      notify("Session saved.");
+    } finally {
+      if (cloud && !committed) await discardStagedClips(uploaded);
+    }
   };
   const removeSession = async (id) => {
     try {
-      await deleteSessionClips(id);
-    } catch {
-      notify(
-        "Couldn’t delete the session’s videos. Please try again; your game is unchanged.",
-      );
-      return;
+      if (!cloud) await deleteSessionClips(id);
+      await setData((d) => ({
+        ...d,
+        sessions: d.sessions.filter((s) => s.id !== id),
+      }));
+      setModal(null);
+      notify("Session deleted.");
+    } catch (error) {
+      notify(error.message || "Couldn’t delete the session. Please try again.");
     }
-    setData((d) => ({ ...d, sessions: d.sessions.filter((s) => s.id !== id) }));
-    setModal(null);
-    notify("Session deleted.");
   };
   const exportData = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -185,6 +234,31 @@ function App() {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     notify("Backup exported.");
   };
+
+  if (cloud && !store.ready)
+    return (
+      <main className="access-screen">
+        <section className="access-card">
+          <h1>soberSem3</h1>
+          {store.error ? (
+            <>
+              <p role="alert">{store.error}</p>
+              <button className="button primary" onClick={store.refresh}>
+                Try again
+              </button>
+              <button
+                className="text-button"
+                onClick={() => cloud.auth.signOut()}
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <p role="status">Loading shared table…</p>
+          )}
+        </section>
+      </main>
+    );
 
   return (
     <div className="app-shell">
@@ -248,6 +322,11 @@ function App() {
       </header>
       <div className="main-shell">
         <main>
+          {cloud && store.error && (
+            <div className="storage-alert shared-status" role="alert">
+              {store.error} <button onClick={store.refresh}>Retry</button>
+            </div>
+          )}
           {storageError && (
             <div className="storage-alert">
               <AlertCircle size={17} /> Browser storage is full or unavailable.
@@ -411,9 +490,9 @@ function App() {
             <>
               <h2>How to use</h2>
               <p className="modal-description">
-                Add players, record sessions, and track net winnings. Records
-                and videos are stored in this browser. Export records in
-                Settings and download videos separately.
+                {cloud
+                  ? "Players, sessions, photos, and videos are shared with your table. Changes refresh within 15 seconds."
+                  : "Add players, record sessions, and track net winnings. Records and videos are stored in this browser. Export records in Settings and download videos separately."}
               </p>
             </>
           )}
@@ -1106,25 +1185,33 @@ function PlayerForm({ player, onSave, onCancel }) {
   };
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
         if (!name.trim()) return setError("Enter a player name.");
-        onSave({
-          ...(player?.strengths !== undefined
-            ? { strengths: player.strengths }
-            : {}),
-          ...(player?.weaknesses !== undefined
-            ? { weaknesses: player.weaknesses }
-            : {}),
-          worstEnemy: worstEnemy.trim(),
-          id: player?.id || uid(),
-          name: name.trim(),
-          tagline: tagline.trim(),
-          photo,
-          color:
-            player?.color ||
-            ["#b4c5a0", "#c7a994", "#b5abd0"][Math.floor(Math.random() * 3)],
-        });
+        setBusy(true);
+        setError("");
+        try {
+          await onSave({
+            ...(player?.strengths !== undefined
+              ? { strengths: player.strengths }
+              : {}),
+            ...(player?.weaknesses !== undefined
+              ? { weaknesses: player.weaknesses }
+              : {}),
+            worstEnemy: worstEnemy.trim(),
+            id: player?.id || uid(),
+            name: name.trim(),
+            tagline: tagline.trim(),
+            photo,
+            color:
+              player?.color ||
+              ["#b4c5a0", "#c7a994", "#b5abd0"][Math.floor(Math.random() * 3)],
+          });
+        } catch (err) {
+          setError(err.message || "Couldn’t save player.");
+        } finally {
+          setBusy(false);
+        }
       }}
     >
       <h2>{player ? "Edit player" : "Add player"}</h2>
@@ -1270,10 +1357,10 @@ function SessionForm({
         if (validation) return setError(validation);
         setSaving(true);
         try {
-          if (session && (newClips.length || removedClipIds.length)) {
-            await saveSessionClips(session.id, newClips, removedClipIds);
-          }
-          onSave(saved);
+          await onSave(saved, {
+            additions: newClips,
+            removals: removedClipIds,
+          });
         } catch (err) {
           setError(
             err.message ||
@@ -1722,10 +1809,11 @@ function SettingsPanel({ data, setData, exportData, notify, onClose }) {
         throw new Error(
           "This isn’t a valid soberSem3 backup. Your current records haven’t changed.",
         );
-      // Verify persistence before replacing the current records.
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
-      setData(imported);
-      pruneSessionClips(imported.sessions.map((s) => s.id)).catch(() => {});
+      // Shared writes must be acknowledged before reporting success.
+      if (!cloud) localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
+      await setData(imported);
+      if (!cloud)
+        pruneSessionClips(imported.sessions.map((s) => s.id)).catch(() => {});
       notify("Backup restored.");
       onClose();
     } catch (err) {
@@ -1740,6 +1828,13 @@ function SettingsPanel({ data, setData, exportData, notify, onClose }) {
   return (
     <>
       <h2>Settings</h2>
+      {cloud && (
+        <div className="settings-section">
+          <button className="text-button" onClick={() => cloud.auth.signOut()}>
+            Sign out
+          </button>
+        </div>
+      )}
 
       <label className="form-label">
         Table currency
@@ -1756,8 +1851,9 @@ function SettingsPanel({ data, setData, exportData, notify, onClose }) {
       <div className="settings-section">
         <h3>Backup</h3>
         <p>
-          Records live in this browser, not on a server. Export regularly and
-          before clearing browser data.
+          {cloud
+            ? "Records are shared with your table. Export a backup before replacing or clearing them."
+            : "Records live in this browser, not on a server. Export regularly and before clearing browser data."}
         </p>
         <div className="backup-actions">
           <button className="button secondary" onClick={exportData}>
@@ -1791,27 +1887,29 @@ function SettingsPanel({ data, setData, exportData, notify, onClose }) {
         {confirmClear ? (
           <div className="clear-confirm">
             <p>
-              This permanently removes all players, sessions, and uploaded
-              videos from this browser.
+              {cloud
+                ? "This permanently removes all players, sessions, and videos for everyone at your table."
+                : "This permanently removes all players, sessions, and uploaded videos from this browser."}
             </p>
             <button
               className="button danger-button small-button"
               onClick={async () => {
                 try {
-                  await clearSessionClips();
-                } catch {
+                  if (!cloud) await clearSessionClips();
+                  await setData({
+                    version: 1,
+                    players: [],
+                    sessions: [],
+                    currency,
+                    demo: false,
+                  });
+                } catch (error) {
                   setError(
-                    "Couldn’t clear video storage. Your records are unchanged. Please try again.",
+                    error.message ||
+                      "Couldn’t clear records. Please try again.",
                   );
                   return;
                 }
-                setData({
-                  version: 1,
-                  players: [],
-                  sessions: [],
-                  currency,
-                  demo: false,
-                });
                 notify("Records cleared.");
                 onClose();
               }}
@@ -1844,10 +1942,14 @@ function SettingsPanel({ data, setData, exportData, notify, onClose }) {
       <div className="form-actions">
         <button
           className="button primary"
-          onClick={() => {
-            setData((d) => ({ ...d, currency }));
-            notify("Settings saved.");
-            onClose();
+          onClick={async () => {
+            try {
+              await setData((d) => ({ ...d, currency }));
+              notify("Settings saved.");
+              onClose();
+            } catch (error) {
+              setError(error.message);
+            }
           }}
         >
           <Check size={15} />
@@ -1860,6 +1962,8 @@ function SettingsPanel({ data, setData, exportData, notify, onClose }) {
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <SharedAccess>
+      <App />
+    </SharedAccess>
   </React.StrictMode>,
 );

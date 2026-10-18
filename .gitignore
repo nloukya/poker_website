@@ -6,3 +6,8 @@ dist/
 
 playwright-report/
 test-results/
+
+.env
+.env.*
+!.env.example
+test-results-shared/
