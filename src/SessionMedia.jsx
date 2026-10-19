@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { cloud } from "./cloud";
+import { createPollingSchedule } from "./polling";
 import {
   Film,
   Plus,
@@ -28,9 +29,14 @@ export function useClipLibrary(sessionId) {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     let active = true;
-    const refresh = () =>
-      listSessionClips(sessionId)
+    let pending = false;
+    const polling = createPollingSchedule();
+    const refresh = () => {
+      if (pending) return;
+      pending = true;
+      return listSessionClips(sessionId)
         .then((result) => {
+          polling.succeeded();
           if (active) {
             setClips(result);
             setError("");
@@ -38,14 +44,23 @@ export function useClipLibrary(sessionId) {
           }
         })
         .catch((err) => {
+          polling.failed();
           if (active) {
             setError(err.message);
             setLoading(false);
           }
+        })
+        .finally(() => {
+          pending = false;
         });
+    };
     refresh();
     window.addEventListener(MEDIA_CHANGE_EVENT, refresh);
-    const interval = cloud ? setInterval(refresh, 15000) : null;
+    const interval = cloud
+      ? setInterval(() => {
+          if (!document.hidden && polling.ready()) refresh();
+        }, 15000)
+      : null;
     return () => {
       active = false;
       if (interval) clearInterval(interval);

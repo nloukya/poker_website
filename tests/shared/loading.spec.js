@@ -100,3 +100,51 @@ test("public viewing loads while an expired editor session is waiting to refresh
   ).toBeVisible();
   expect(refreshRequests).toBeGreaterThan(0);
 });
+
+test("an overloaded database receives slower automatic retries while manual retry stays available", async ({
+  page,
+}) => {
+  await page.clock.install();
+  let requests = 0;
+  let overloaded = true;
+  await page.route("https://shared-table.test/rest/v1/**", (route) => {
+    requests++;
+    if (overloaded)
+      return route.fulfill({ status: 503, json: { message: "Unavailable" } });
+    return route.fulfill({
+      json: {
+        revision: 0,
+        clip_manifest: [],
+        payload: {
+          version: 1,
+          currency: "INR",
+          players: [],
+          sessions: [],
+          demo: false,
+        },
+      },
+    });
+  });
+  await page.goto("/");
+  await expect(page.getByRole("alert")).toContainText(
+    "temporarily unavailable",
+  );
+  expect(requests).toBe(1);
+  await page.clock.fastForward(15000);
+  expect(requests).toBe(1);
+  await page.clock.fastForward(30001);
+  await expect.poll(() => requests).toBe(2);
+  await expect(page.getByRole("alert")).toContainText(
+    "temporarily unavailable",
+  );
+  await page.clock.fastForward(30000);
+  expect(requests).toBe(2);
+  overloaded = false;
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Overview", exact: true }),
+  ).toBeVisible();
+  expect(requests).toBe(3);
+  await page.clock.fastForward(15001);
+  await expect.poll(() => requests).toBe(4);
+});

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPollingSchedule } from "./polling";
 import {
   cloud,
   readSharedTable,
@@ -24,6 +25,8 @@ export function useTableRecords(loadLocal) {
   const writing = useRef(false);
   const refreshing = useRef(false);
   const active = useRef(false);
+  const polling = useRef(null);
+  if (!polling.current) polling.current = createPollingSchedule();
   const refresh = useCallback(async () => {
     if (!cloud || writing.current || refreshing.current) return;
     refreshing.current = true;
@@ -35,8 +38,10 @@ export function useTableRecords(loadLocal) {
         setData(row.payload);
         setReady(true);
       }
+      polling.current.succeeded();
       setError("");
     } catch (err) {
+      polling.current.failed();
       if (active.current) setError(err.message);
     } finally {
       refreshing.current = false;
@@ -46,7 +51,9 @@ export function useTableRecords(loadLocal) {
     if (!cloud) return;
     active.current = true;
     refresh();
-    const interval = setInterval(refresh, 15000);
+    const interval = setInterval(() => {
+      if (!document.hidden && polling.current.ready()) refresh();
+    }, 15000);
     window.addEventListener("focus", refresh);
     window.addEventListener("online", refresh);
     window.addEventListener(CLOUD_CHANGE_EVENT, refresh);

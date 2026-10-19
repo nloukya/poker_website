@@ -50,7 +50,7 @@ If you ran the earlier setup that required every visitor to sign in, open [supab
 
 ## If the shared table won’t load
 
-Public viewing uses an anonymous reader and does not wait for an old editor login to refresh. Requests stop after 12 seconds and show an error with a retry button.
+Public viewing uses an anonymous reader and does not wait for an old editor login to refresh. Requests stop after 12 seconds and show an error with a retry button. Automatic refresh pauses in hidden tabs. After failures, automatic retries slow down from 30 seconds to at most five minutes to avoid repeatedly loading an unavailable database; **Try again** still retries immediately. Successful requests restore the normal 15-second refresh interval.
 
 | Message | What to check |
 | --- | --- |
@@ -60,6 +60,8 @@ Public viewing uses an anonymous reader and does not wait for an old editor logi
 | Timeout, cannot reach Supabase, or HTTP 5xx | Check your connection and project status in the Supabase dashboard; restore a paused project if necessary, then retry. |
 
 The earlier generic message about applying `public-view` SQL did not distinguish these failures. After deploying the latest version, use the new error to decide which step is needed.
+
+If the Supabase dashboard reports 100% CPU, use its **Troubleshoot** options to inspect query activity and resource usage. The app’s timeout alone does not identify the CPU-intensive query. Close unused website tabs while investigating. Compute upgrades are managed in Supabase; only select a free upgrade if the dashboard explicitly offers it at no additional cost.
 
 ## Bring over existing records
 
