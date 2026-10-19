@@ -26,10 +26,11 @@ create table if not exists public.club_state (
 );
 alter table public.club_state enable row level security;
 revoke all on public.club_state from anon, authenticated;
-grant select on public.club_state to authenticated;
+grant select on public.club_state to anon, authenticated;
 drop policy if exists "Members read shared table" on public.club_state;
-create policy "Members read shared table" on public.club_state for select to authenticated
-using (public.is_club_member());
+drop policy if exists "Anyone reads shared table" on public.club_state;
+create policy "Anyone reads shared table" on public.club_state for select to anon, authenticated
+using (true);
 
 insert into public.club_state(id, payload) values
 (1, '{"version":1,"currency":"INR","players":[],"sessions":[],"demo":false}')
@@ -97,13 +98,14 @@ $$;
 revoke all on function public.save_club_state(bigint, jsonb, text, jsonb, text[]) from public, anon;
 grant execute on function public.save_club_state(bigint, jsonb, text, jsonb, text[]) to authenticated;
 
--- Private storage: only approved club members can upload, watch, or delete clips.
+-- Anyone can watch clips; only approved club members can upload or delete them.
 insert into storage.buckets(id, name, public, file_size_limit)
 values ('highlights', 'highlights', false, 52428800)
 on conflict(id) do update set public = false, file_size_limit = 52428800;
 drop policy if exists "Members read highlights" on storage.objects;
-create policy "Members read highlights" on storage.objects for select to authenticated
-using (bucket_id = 'highlights' and public.is_club_member());
+drop policy if exists "Anyone reads highlights" on storage.objects;
+create policy "Anyone reads highlights" on storage.objects for select to anon, authenticated
+using (bucket_id = 'highlights');
 drop policy if exists "Members upload highlights" on storage.objects;
 create policy "Members upload highlights" on storage.objects for insert to authenticated
 with check (bucket_id = 'highlights' and public.is_club_member());

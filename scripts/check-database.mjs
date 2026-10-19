@@ -55,7 +55,7 @@ const save = async (
 await user("outsider@example.com");
 assert.equal(
   (await db.query("select * from public.club_state")).rows.length,
-  0,
+  1,
 );
 await assert.rejects(save(0), /NOT_AUTHORIZED/);
 await assert.rejects(
@@ -110,11 +110,55 @@ await db.query(
 );
 assert.equal((await db.query("select * from storage.objects")).rows.length, 1);
 await user("outsider@example.com");
-assert.equal((await db.query("select * from storage.objects")).rows.length, 0);
+assert.equal((await db.query("select * from storage.objects")).rows.length, 1);
 assert.equal(
   (await db.query(`delete from storage.objects returning id`)).rows.length,
   0,
 );
+await db.exec("reset role");
+await db.query("select set_config('request.jwt.claims', '{}', false)");
+await db.exec("set role anon");
+assert.equal(
+  (await db.query("select * from public.club_state")).rows.length,
+  1,
+);
+assert.equal((await db.query("select * from storage.objects")).rows.length, 1);
+await assert.rejects(save(3), /permission denied/);
+await assert.rejects(
+  db.query("update public.club_state set revision=99"),
+  /permission denied/,
+);
+await assert.rejects(
+  db.query("select * from public.club_members"),
+  /permission denied/,
+);
+await assert.rejects(
+  db.query("insert into storage.objects values ('guest','highlights','bad')"),
+  /row-level security/,
+);
+assert.equal(
+  (await db.query("delete from storage.objects returning id")).rows.length,
+  0,
+);
+await db.exec("reset role");
+// Re-create the earlier private-view policies to exercise the actual upgrade.
+await db.exec(`
+revoke select on public.club_state from anon;
+drop policy "Anyone reads shared table" on public.club_state;
+create policy "Members read shared table" on public.club_state for select to authenticated using (public.is_club_member());
+drop policy "Anyone reads highlights" on storage.objects;
+create policy "Members read highlights" on storage.objects for select to authenticated using (bucket_id = 'highlights' and public.is_club_member());
+`);
+const upgrade = await readFile(
+  new URL("../supabase/public-view.sql", import.meta.url),
+  "utf8",
+);
+await db.exec(upgrade);
+await db.exec(upgrade);
+await db.exec("set role anon");
+assert.equal((await db.query("select * from public.club_state")).rows.length, 1);
+assert.equal((await db.query("select * from storage.objects")).rows.length, 1);
+await assert.rejects(save(3), /permission denied/);
 await db.exec("reset role");
 assert.equal((await db.query("select * from storage.objects")).rows.length, 1);
 await db.exec(sql);
@@ -123,6 +167,6 @@ assert.equal(
   3,
 );
 console.log(
-  "PASS: schema is repeatable; membership/RLS, private media, atomic saves, conflicts, invalid writes, and manifest pruning verified in PostgreSQL.",
+  "PASS: schema is repeatable; public viewing, restricted editing/media uploads, atomic saves, conflicts, invalid writes, and manifest pruning verified in PostgreSQL.",
 );
 await db.close();

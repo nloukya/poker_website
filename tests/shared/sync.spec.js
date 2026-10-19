@@ -33,7 +33,7 @@ async function backend(browser) {
   const pages = [];
   let failWrites = false;
   let loseReply = false;
-  async function phone(viewport = { width: 390, height: 844 }) {
+  async function phone(viewport = { width: 390, height: 844 }, signIn = true) {
     const context = await browser.newContext({ viewport });
     await context.route("https://shared-table.test/**", async (route) => {
       const request = route.request();
@@ -116,18 +116,30 @@ async function backend(browser) {
     const page = await context.newPage();
     pages.push(page);
     await page.goto("/#players");
-    await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+    await expect(page.locator(".trading-card")).toHaveCount(2);
+    if (!signIn) return page;
+    await page
+      .getByRole("button", { name: "Sign in to edit", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Sign in to edit" }),
+    ).toBeVisible();
     await page.getByLabel("Email", { exact: true }).fill("friend@example.com");
     await page.getByLabel("Password", { exact: true }).fill("fixture-password");
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page.locator(".trading-card")).toHaveCount(2);
+    await expect(page.getByRole("dialog")).not.toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Add player", exact: true }),
+    ).toBeVisible();
     return page;
   }
   return {
     phone,
     state: () => state,
     files,
-    loseReply: (value) => { loseReply = value; },
+    loseReply: (value) => {
+      loseReply = value;
+    },
     fail: (value) => {
       failWrites = value;
     },
@@ -197,8 +209,9 @@ test("two phones share records; stale forms and failed writes cannot overwrite s
     await b.getByRole("button", { name: "Settings", exact: true }).click();
     await b.getByRole("button", { name: "Sign out", exact: true }).click();
     await expect(
-      b.getByRole("heading", { name: "Sign in", exact: true }),
+      b.getByRole("button", { name: "Sign in to edit", exact: true }),
     ).toBeVisible();
+    await expect(b.locator(".trading-card")).toHaveCount(2);
   } finally {
     await table.close();
   }
@@ -210,7 +223,7 @@ test("shared session videos upload with results and are available on a second ph
   const table = await backend(browser);
   try {
     const a = await table.phone({ width: 1440, height: 1000 });
-    const b = await table.phone({ width: 1440, height: 1000 });
+    const b = await table.phone({ width: 1440, height: 1000 }, false);
     await a.goto("/#sessions");
     await a.getByRole("button", { name: /Edit Friday/ }).click();
     const form = a.getByRole("dialog");
@@ -230,8 +243,9 @@ test("shared session videos upload with results and are available on a second ph
   }
 });
 
-
-test("a lost save response does not delete a video already committed to the shared table", async ({ browser }) => {
+test("a lost save response does not delete a video already committed to the shared table", async ({
+  browser,
+}) => {
   const table = await backend(browser);
   try {
     const a = await table.phone({ width: 1440, height: 1000 });
@@ -240,7 +254,9 @@ test("a lost save response does not delete a video already committed to the shar
     const form = a.getByRole("dialog");
     await form.locator('input[type="file"]').setInputFiles(fixture.pathname);
     table.loseReply(true);
-    await form.getByRole("button", { name: "Save changes", exact: true }).click();
+    await form
+      .getByRole("button", { name: "Save changes", exact: true })
+      .click();
     await expect(form.getByRole("alert")).toContainText("Couldn’t save");
     expect(table.state().clip_manifest).toHaveLength(1);
     expect(table.files.has(table.state().clip_manifest[0].path)).toBe(true);
@@ -248,5 +264,49 @@ test("a lost save response does not delete a video already committed to the shar
     await refresh(a);
     await a.getByRole("button", { name: "View Friday", exact: true }).click();
     await expect(a.locator("video")).toHaveAttribute("src", /^blob:/);
-  } finally { await table.close(); }
+  } finally {
+    await table.close();
+  }
+});
+
+test("guests browse all pages and are prompted to sign in before editing", async ({
+  browser,
+}) => {
+  const table = await backend(browser);
+  try {
+    const page = await table.phone(undefined, false);
+    for (const route of [
+      "overview",
+      "players",
+      "leaderboard",
+      "sessions",
+      "awards",
+    ]) {
+      await page.goto(`/#${route}`);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+    }
+    await page.goto("/#players");
+    await page.getByRole("button", { name: "Edit tagline for Alex" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Sign in to edit" }),
+    ).toBeVisible();
+    await expect(page.getByLabel("Player name")).not.toBeVisible();
+    expect(table.state().revision).toBe(0);
+    await page.getByRole("button", { name: "Close dialog" }).click();
+    await page.getByRole("button", { name: "Settings", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "Sign in to edit" }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(() => localStorage.getItem("poker-face-v1")),
+    ).toBeNull();
+  } finally {
+    await table.close();
+  }
 });

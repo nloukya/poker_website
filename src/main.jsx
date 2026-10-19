@@ -51,7 +51,7 @@ import "./graduation.css";
 import { Avatar, PeriodSelect } from "./ui";
 import { cloud, stageCloudClips, discardStagedClips } from "./cloud";
 import { useTableRecords } from "./useTableRecords";
-import { SharedAccess } from "./SharedAccess";
+import { SharedAccess, SignInForm, useTableAccess } from "./SharedAccess";
 import "./shared.css";
 import { Players, LeaderboardPage, Sessions } from "./ClubPages";
 import { SessionHighlights, ClipEditor } from "./SessionMedia";
@@ -90,10 +90,13 @@ function loadData() {
 }
 
 function App() {
+  const { canEdit } = useTableAccess();
   const store = useTableRecords(loadData);
   const { data } = store;
-  const setData = (updater, clips) =>
-    store.update(updater, modal?.revision, clips);
+  const setData = (updater, clips) => {
+    if (!canEdit) throw new Error("Sign in to edit the shared table.");
+    return store.update(updater, modal?.revision, clips);
+  };
   const [page, setPage] = useState(() =>
     NAV.some((n) => n.id === location.hash.slice(1))
       ? location.hash.slice(1)
@@ -102,7 +105,13 @@ function App() {
   const [period, setPeriod] = useState("all");
   const [query, setQuery] = useState("");
   const [modal, setModalState] = useState(null);
-  const setModal = (next) =>
+  const setModal = (requested) => {
+    const next =
+      requested &&
+      !canEdit &&
+      ["player", "session", "delete", "settings"].includes(requested.type)
+        ? { type: "signin" }
+        : requested;
     setModalState(
       next
         ? {
@@ -125,6 +134,16 @@ function App() {
           }
         : null,
     );
+  };
+  useEffect(() => {
+    if (!canEdit)
+      setModalState((current) =>
+        current &&
+        ["player", "session", "delete", "settings"].includes(current.type)
+          ? null
+          : current,
+      );
+  }, [canEdit]);
   const [toast, setToast] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [storageError, setStorageError] = useState(false);
@@ -347,8 +366,12 @@ function App() {
                 setModal({ type: page === "players" ? "player" : "session" })
               }
             >
-              <Plus size={16} />
-              {page === "players" ? "Add player" : "Add session"}
+              {canEdit && <Plus size={16} />}
+              {!canEdit
+                ? "Sign in to edit"
+                : page === "players"
+                  ? "Add player"
+                  : "Add session"}
             </button>
           </div>
           {page === "overview" && (
@@ -415,6 +438,9 @@ function App() {
           onClose={() => setModal(null)}
           wide={["session", "detail"].includes(modal.type)}
         >
+          {modal.type === "signin" && (
+            <SignInForm onSuccess={() => setModal(null)} />
+          )}
           {modal.type === "player" && (
             <PlayerForm
               player={modal.player}
@@ -491,7 +517,7 @@ function App() {
               <h2>How to use</h2>
               <p className="modal-description">
                 {cloud
-                  ? "Players, sessions, photos, and videos are shared with your table. Changes refresh within 15 seconds."
+                  ? "Anyone with the link can view players, sessions, photos, and videos. Sign in with an approved account to edit. Changes refresh within 15 seconds."
                   : "Add players, record sessions, and track net winnings. Records and videos are stored in this browser. Export records in Settings and download videos separately."}
               </p>
             </>

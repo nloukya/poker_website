@@ -4,7 +4,7 @@ A responsive poker tracker with a Graduation-inspired purple, pink, orange, and 
 
 ## Share with friends
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for GitHub Pages and Supabase setup. Hosted mode requires sign-in and approved membership; players, photos, sessions, and videos are shared across phones. The Pages workflow deploys on pushes to `main` after you enable it and add the public Supabase configuration.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for GitHub Pages and Supabase setup. Hosted mode lets anyone with the link view players, photos, sessions, and videos without logging in. Editing requires sign-in and approved membership. Existing installations should run `supabase/public-view.sql` once to enable public viewing. The Pages workflow deploys on pushes to `main` after you enable it and add the public Supabase configuration.
 
 ## Run locally
 
@@ -54,7 +54,7 @@ Card ranks, total winnings, total sessions, and average winnings use lifetime re
 
 Open a saved game night and choose **Edit session**, or click **Add highlights** on its session row. Select or drop video files, then **Save changes**. Uploads and removals are staged until save; Cancel leaves existing clips unchanged. Removing a saved clip has a confirmation and an Undo option before saving. Deleting a session also deletes its stored clips. Clearing all records also clears videos.
 
-Files may be up to 100 MB each. MP4, WebM, MOV, M4V, and Ogg extensions are accepted; MP4 and WebM are recommended because playback depends on browser codec support. The original file can be downloaded even if the browser cannot play its codec. Browser storage capacity varies; storage failures leave existing videos unchanged. Local-mode videos do not sync across devices. In shared mode they use private Supabase storage and are limited to 50 MB each.
+Files may be up to 100 MB each. MP4, WebM, MOV, M4V, and Ogg extensions are accepted; MP4 and WebM are recommended because playback depends on browser codec support. The original file can be downloaded even if the browser cannot play its codec. Browser storage capacity varies; storage failures leave existing videos unchanged. Local-mode videos do not sync across devices. In shared mode videos can be viewed without sign-in; uploads and deletions require approved membership, and clips are limited to 50 MB each.
 
 This app records game results; it does not process bets, payments, or currency conversions.
 
@@ -75,7 +75,7 @@ The Playwright configuration reuses an existing development server or starts one
 ## Project layout
 
 - `src/cloud.js`, `src/useTableRecords.js`, and `src/SharedAccess.jsx` — shared storage, conflict checking, polling, and sign-in.
-- `supabase/setup.sql` — repeatable database and private-video policies.
+- `supabase/setup.sql` — repeatable database, public viewing, and restricted editing policies.
 - `.github/workflows/pages.yml` — GitHub Pages publishing.
 - `src/main.jsx` — application shell, forms, dialogs, and browser record storage.
 - `src/ClubPages.jsx` — collectible cards, podium leaderboard, and session archive.

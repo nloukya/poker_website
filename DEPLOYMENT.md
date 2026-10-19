@@ -1,13 +1,17 @@
 # Put soberSem3 online for your friends
 
 The source is in [nloukya/poker_website](https://github.com/nloukya/poker_website).
-GitHub Pages hosts the website; your Supabase project stores the shared table, photos, and private videos. Every approved friend sees the same records. Updates refresh within 15 seconds or when returning to the tab. Everyone on the membership list can edit the table.
+GitHub Pages hosts the website; your Supabase project stores the shared table, photos, and videos. Anyone with the website link can view the same players, results, photos, and videos without an account. Only signed-in people on the membership list can edit. Updates refresh within 15 seconds or when returning to the tab.
+
+## Already configured? Enable viewing without sign-in
+
+If you ran the earlier setup that required every visitor to sign in, open [supabase/public-view.sql](supabase/public-view.sql), copy the entire file, and run it in **Supabase → SQL Editor → New query**. It preserves all existing records, video metadata, and editor memberships. Wait for the latest GitHub Pages deployment to finish, then refresh the website. Friends can view without accounts; accounts are only needed for editing.
 
 ## 1. Create the shared table
 
 1. Create a project at [Supabase](https://supabase.com/dashboard). Keep the database password private; the website does not need it.
-2. Open **SQL Editor**, paste [supabase/setup.sql](supabase/setup.sql), and run it. This creates an empty table, membership rules, and a private video bucket. You can run it again without deleting existing records.
-3. Open **Authentication → Providers → Email** and disable public sign-ups. Use **Authentication → Users → Add user → Create new user** to create an email/password account for yourself and each friend. Enable **Auto Confirm User** for these manually created accounts. Give each friend their own password privately.
+2. Open **SQL Editor**, paste [supabase/setup.sql](supabase/setup.sql), and run it. This creates an empty table, editor membership rules, and video storage with public viewing and restricted uploads. You can run it again without deleting existing records.
+3. Open **Authentication → Sign In / Providers → User Signups**, disable **Allow new users to sign up**, and save. Keep the Email provider enabled. Use **Authentication → Users → Add user → Create new user** to create an email/password account for yourself and anyone who should edit the table. Enable **Auto Confirm User** for these manually created accounts. Give each friend their own password privately.
 4. In **SQL Editor**, add those email addresses to the membership list:
 
    ```sql
@@ -17,7 +21,7 @@ GitHub Pages hosts the website; your Supabase project stores the shared table, p
    on conflict do nothing;
    ```
 
-   Replace the examples and use lowercase addresses. Accounts that are not on this list cannot read or edit the shared records or videos. To revoke access:
+   Replace the examples and use lowercase addresses. Visitors can view without an account. Accounts that are not on this list cannot edit records or upload/delete videos. To revoke editing access:
 
    ```sql
    delete from public.club_members where email = 'friend@example.com';
@@ -34,15 +38,15 @@ GitHub Pages hosts the website; your Supabase project stores the shared table, p
    | `VITE_SUPABASE_URL` | The project's `https://…supabase.co` URL |
    | `VITE_SUPABASE_PUBLISHABLE_KEY` | The project's publishable or legacy anon key |
 
-   These are public browser configuration, not admin credentials. Database and storage access is enforced by the SQL membership policies.
-2. Open [Pages settings](https://github.com/nloukya/poker_website/settings/pages). Under **Build and deployment → Source**, select **GitHub Actions**. If the repository is private and your GitHub plan does not offer Pages, choose a hosting plan that supports private source or make the source repository public yourself. The shared database remains restricted to approved accounts.
+   These are public browser configuration, not admin credentials. Database writes and video uploads/deletions are protected by SQL membership policies. Viewing is public.
+2. Open [Pages settings](https://github.com/nloukya/poker_website/settings/pages). Under **Build and deployment → Source**, select **GitHub Actions**. If the repository is private and your GitHub plan does not offer Pages, choose a hosting plan that supports private source or make the source repository public yourself. Editing remains restricted to approved accounts; website content is publicly viewable.
 3. Open [Actions](https://github.com/nloukya/poker_website/actions/workflows/pages.yml), choose **Publish soberSem3 → Run workflow → main → Run workflow**. New pushes to `main` deploy automatically afterward. The action runs calculation and database-policy tests, builds the site, and publishes it.
 4. After the action succeeds, open:
 
    **https://nloukya.github.io/poker_website/**
 
    This is the expected address; it is only live after GitHub confirms deployment. The exact published link is shown in the workflow's `github-pages` environment. Without the Supabase variables, the published site displays a setup message and does not create separate phone records. Add the variables and rerun the workflow to connect it.
-5. Send the link to your friends. They can sign in on iPhone or Android using their own account. They can add it to their home screen from their browser's share/menu options. Internet access is required for shared records.
+5. Send the link to your friends. They can view it on iPhone or Android without signing in. Only editors need to sign in using the **Sign in to edit** button. They can add it to their home screen from their browser's share/menu options. Internet access is required for shared records.
 
 ## Bring over existing records
 
@@ -64,6 +68,6 @@ npm run build
 
 Without environment variables, local development preserves the original browser-only mode. To work against your shared project, copy `.env.example` to `.env.local`, replace the public configuration values, and restart Vite. `.env.local` is ignored by Git.
 
-`test:database` exercises the SQL in an isolated PostgreSQL-compatible PGlite instance with modeled Supabase auth/storage schemas: membership checks, denied writes, stale revisions, atomic saves, private media policies, repeatable setup, and clip pruning. `test:shared` uses a mocked Supabase HTTP API to check two browser contexts, sign-in/sign-out, failed saves, stale edits, and shared video playback. These tests do not provision or validate a hosted Supabase project. After deployment, sign in on two actual devices, save a player or session, and verify the second device refreshes.
+`test:database` exercises the SQL in an isolated PostgreSQL-compatible PGlite instance with modeled Supabase auth/storage schemas: membership checks, denied writes, stale revisions, atomic saves, public reads and restricted media writes, repeatable setup, and clip pruning. `test:shared` uses a mocked Supabase HTTP API to check two browser contexts, guest access to every page, sign-in/sign-out, failed saves, stale edits, and video playback without sign-in. These tests do not provision or validate a hosted Supabase project. After deployment, sign in on one device, save a player or session, and verify a second device can see the update without signing in.
 
 Concurrent edits are checked by revision. If another friend saves while your form is open, the save is rejected and your form stays open. Close and reopen it to edit the latest records. Videos upload before the database commit; a rejected save removes the newly staged files where possible. File cleanup failures can leave unused storage objects, but do not replace an existing video.

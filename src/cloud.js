@@ -14,7 +14,7 @@ export async function readSharedTable() {
     .single();
   if (error)
     throw new Error(
-      "Can’t load the shared table. Check your connection and ask the owner to check your membership.",
+      "Can’t load the shared table. Check your connection. The owner may need to apply the public-view database update.",
     );
   return data;
 }
