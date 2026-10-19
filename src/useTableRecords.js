@@ -22,9 +22,11 @@ export function useTableRecords(loadLocal) {
   const [error, setError] = useState("");
   const current = useRef(null);
   const writing = useRef(false);
+  const refreshing = useRef(false);
   const active = useRef(false);
   const refresh = useCallback(async () => {
-    if (!cloud || writing.current) return;
+    if (!cloud || writing.current || refreshing.current) return;
+    refreshing.current = true;
     try {
       const row = await readSharedTable();
       if (!active.current || writing.current) return;
@@ -36,6 +38,8 @@ export function useTableRecords(loadLocal) {
       setError("");
     } catch (err) {
       if (active.current) setError(err.message);
+    } finally {
+      refreshing.current = false;
     }
   }, []);
   useEffect(() => {

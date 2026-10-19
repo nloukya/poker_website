@@ -68,7 +68,7 @@ npm run test:shared
 npm run build
 ```
 
-The ten Node tests cover financial totals, partial attendance, cumulative histories, date ranges, recent-session results, averages, ranking metrics, session validation, currency formatting, and video-file validation. Four Playwright browser tests cover two-column cards, legacy profile compatibility, persistent worst-enemy fields, recent profits, podium sorting, the full video upload/playback/download/removal workflow, and mobile layouts/navigation. Browser tests use isolated storage and a synthetic sample clip.
+The Node tests cover financial totals, partial attendance, cumulative histories, date ranges, recent-session results, averages, ranking metrics, session validation, currency formatting, video-file validation, and shared-loading error classification. Four Playwright browser tests cover two-column cards, legacy profile compatibility, persistent worst-enemy fields, recent profits, podium sorting, the full video upload/playback/download/removal workflow, and mobile layouts/navigation. Browser tests use isolated storage and a synthetic sample clip.
 
 The Playwright configuration reuses an existing development server or starts one. It uses `/usr/bin/chromium` when available. On another machine, run `npx playwright install chromium` once, or set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to an installed Chromium executable.
 

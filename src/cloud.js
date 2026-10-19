@@ -1,22 +1,34 @@
 import { createClient } from "@supabase/supabase-js";
+import { sharedReadError } from "./shared-errors.js";
 
 const url = import.meta.env?.VITE_SUPABASE_URL;
 const key = import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const sharedRequired = import.meta.env?.VITE_SHARED_REQUIRED === "true";
 export const cloud = url && key ? createClient(url, key) : null;
+// Public viewing must not wait for an old editor session to refresh its token.
+const publicReader =
+  url && key ? createClient(url, key, { accessToken: async () => null }) : null;
 export const CLOUD_CHANGE_EVENT = "sobersem3-cloud-change";
 
 export async function readSharedTable() {
-  const { data, error } = await cloud
-    .from("club_state")
-    .select("payload, revision, clip_manifest")
-    .eq("id", 1)
-    .single();
-  if (error)
-    throw new Error(
-      "Can’t load the shared table. Check your connection. The owner may need to apply the public-view database update.",
-    );
-  return data;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const { data, error, status } = await publicReader
+      .from("club_state")
+      .select("payload, revision, clip_manifest")
+      .eq("id", 1)
+      .single()
+      .abortSignal(controller.signal)
+      .retry(false);
+    if (error)
+      throw new Error(
+        sharedReadError(error, status, controller.signal.aborted),
+      );
+    return data;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function saveSharedTable(payload, revision, clips = {}) {

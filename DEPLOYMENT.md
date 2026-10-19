@@ -48,6 +48,19 @@ If you ran the earlier setup that required every visitor to sign in, open [supab
    This is the expected address; it is only live after GitHub confirms deployment. The exact published link is shown in the workflow's `github-pages` environment. Without the Supabase variables, the published site displays a setup message and does not create separate phone records. Add the variables and rerun the workflow to connect it.
 5. Send the link to your friends. They can view it on iPhone or Android without signing in. Only editors need to sign in using the **Sign in to edit** button. They can add it to their home screen from their browser's share/menu options. Internet access is required for shared records.
 
+## If the shared table won’t load
+
+Public viewing uses an anonymous reader and does not wait for an old editor login to refresh. Requests stop after 12 seconds and show an error with a retry button.
+
+| Message | What to check |
+| --- | --- |
+| Connection key rejected / HTTP 401 | Copy the Project URL and publishable key from the same Supabase project into the two GitHub variables, then rerun the Pages workflow. |
+| Table hasn’t been set up / PGRST205 or 42P01 | Run the current `supabase/setup.sql` in that project. |
+| Permission denied / 42501, or table empty or hidden / PGRST116 | Run the current `supabase/setup.sql` in that project; it creates the singleton row and public read policies without replacing existing records. |
+| Timeout, cannot reach Supabase, or HTTP 5xx | Check your connection and project status in the Supabase dashboard; restore a paused project if necessary, then retry. |
+
+The earlier generic message about applying `public-view` SQL did not distinguish these failures. After deploying the latest version, use the new error to decide which step is needed.
+
 ## Bring over existing records
 
 The downloaded HTML version keeps records on your original device. In that version, use **Settings → Export backup**. Sign in on the website and use **Settings → Restore backup** once to put those players, photos, and sessions in the shared table. Restore replaces the shared table for everyone, so do it before others start adding records.
