@@ -59,7 +59,11 @@ async function backend(browser) {
       }
       if (url.pathname === "/auth/v1/logout") return json({});
       if (url.pathname === "/rest/v1/club_state")
-        return json(structuredClone(state));
+        return json(
+          url.searchParams.get("select") === "revision"
+            ? { revision: state.revision }
+            : structuredClone(state),
+        );
       if (url.pathname === "/rest/v1/rpc/save_club_state") {
         const args = request.postDataJSON();
         if (failWrites)
@@ -114,6 +118,7 @@ async function backend(browser) {
       );
     });
     const page = await context.newPage();
+    await page.clock.install();
     pages.push(page);
     await page.goto("/#players");
     await expect(page.locator(".trading-card")).toHaveCount(2);
@@ -180,6 +185,7 @@ test("two phones share records; stale forms and failed writes cannot overwrite s
     );
     expect(table.state().payload.players[0].tagline).toBe("Shared tagline");
     await stale.getByRole("button", { name: "Cancel", exact: true }).click();
+    await b.clock.fastForward(5001);
     await refresh(b);
     await expect(b.locator(".trading-card").first()).toContainText(
       "Shared tagline",
@@ -234,6 +240,7 @@ test("shared session videos upload with results and are available on a second ph
     await expect(form).not.toBeVisible();
     expect(table.state().clip_manifest).toHaveLength(1);
     expect(table.files.size).toBe(1);
+    await b.clock.fastForward(60001);
     await b.goto("/#sessions");
     await b.getByRole("button", { name: /View Friday/ }).click();
     await expect(b.getByRole("dialog")).toContainText("Shared with your table");

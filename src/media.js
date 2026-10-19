@@ -1,6 +1,7 @@
 import {
   cloud,
   readSharedTable,
+  peekSharedTable,
   saveSharedTable,
   stageCloudClips,
   removeCloudFiles,
@@ -75,7 +76,7 @@ function storageError(error) {
 
 export async function listSessionClips(sessionId) {
   if (cloud) {
-    const { clip_manifest } = await readSharedTable();
+    const { clip_manifest } = peekSharedTable() || (await readSharedTable());
     return clip_manifest
       .filter((c) => !sessionId || c.sessionId === sessionId)
       .sort((a, b) => a.createdAt - b.createdAt);
@@ -94,7 +95,7 @@ export async function listSessionClips(sessionId) {
 
 export async function getClipBlob(id) {
   if (cloud) {
-    const { clip_manifest } = await readSharedTable();
+    const { clip_manifest } = peekSharedTable() || (await readSharedTable());
     const clip = clip_manifest.find((c) => c.id === id);
     if (!clip) throw new Error("This video has been removed.");
     const { data, error } = await cloud.storage

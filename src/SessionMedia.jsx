@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { cloud } from "./cloud";
-import { createPollingSchedule } from "./polling";
 import {
   Film,
   Plus,
@@ -30,13 +29,15 @@ export function useClipLibrary(sessionId) {
   useEffect(() => {
     let active = true;
     let pending = false;
-    const polling = createPollingSchedule();
+    let queued = false;
     const refresh = () => {
-      if (pending) return;
+      if (pending) {
+        queued = true;
+        return;
+      }
       pending = true;
       return listSessionClips(sessionId)
         .then((result) => {
-          polling.succeeded();
           if (active) {
             setClips(result);
             setError("");
@@ -44,7 +45,6 @@ export function useClipLibrary(sessionId) {
           }
         })
         .catch((err) => {
-          polling.failed();
           if (active) {
             setError(err.message);
             setLoading(false);
@@ -52,18 +52,18 @@ export function useClipLibrary(sessionId) {
         })
         .finally(() => {
           pending = false;
+          if (queued && active) {
+            queued = false;
+            refresh();
+          }
         });
     };
     refresh();
     window.addEventListener(MEDIA_CHANGE_EVENT, refresh);
-    const interval = cloud
-      ? setInterval(() => {
-          if (!document.hidden && polling.ready()) refresh();
-        }, 15000)
-      : null;
+    // The shared table publishes metadata changes; no separate database poll
+    // is needed for each archive, expanded session, or clip editor.
     return () => {
       active = false;
-      if (interval) clearInterval(interval);
       window.removeEventListener(MEDIA_CHANGE_EVENT, refresh);
     };
   }, [sessionId]);

@@ -132,7 +132,7 @@ test("an overloaded database receives slower automatic retries while manual retr
   expect(requests).toBe(1);
   await page.clock.fastForward(15000);
   expect(requests).toBe(1);
-  await page.clock.fastForward(30001);
+  await page.clock.fastForward(60001);
   await expect.poll(() => requests).toBe(2);
   await expect(page.getByRole("alert")).toContainText(
     "temporarily unavailable",
@@ -145,6 +145,6 @@ test("an overloaded database receives slower automatic retries while manual retr
     page.getByRole("heading", { name: "Overview", exact: true }),
   ).toBeVisible();
   expect(requests).toBe(3);
-  await page.clock.fastForward(15001);
+  await page.clock.fastForward(60001);
   await expect.poll(() => requests).toBe(4);
 });

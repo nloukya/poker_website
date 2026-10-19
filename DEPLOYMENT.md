@@ -1,7 +1,7 @@
 # Put soberSem3 online for your friends
 
 The source is in [nloukya/poker_website](https://github.com/nloukya/poker_website).
-GitHub Pages hosts the website; your Supabase project stores the shared table, photos, and videos. Anyone with the website link can view the same players, results, photos, and videos without an account. Only signed-in people on the membership list can edit. Updates refresh within 15 seconds or when returning to the tab.
+GitHub Pages hosts the website; your Supabase project stores the shared table, photos, and videos. Anyone with the website link can view the same players, results, photos, and videos without an account. Only signed-in people on the membership list can edit. Updates refresh within a minute or when returning to the tab. Your own saved changes appear immediately.
 
 ## Already configured? Enable viewing without sign-in
 
@@ -50,7 +50,7 @@ If you ran the earlier setup that required every visitor to sign in, open [supab
 
 ## If the shared table won’t load
 
-Public viewing uses an anonymous reader and does not wait for an old editor login to refresh. Requests stop after 12 seconds and show an error with a retry button. Automatic refresh pauses in hidden tabs. After failures, automatic retries slow down from 30 seconds to at most five minutes to avoid repeatedly loading an unavailable database; **Try again** still retries immediately. Successful requests restore the normal 15-second refresh interval.
+Public viewing uses an anonymous reader and does not wait for an old editor login to refresh. Requests stop after 12 seconds and show an error with a retry button. Automatic refresh pauses in hidden tabs. After failures, automatic retries slow down from one minute to at most five minutes to avoid repeatedly loading an unavailable database; **Try again** still retries immediately. Successful requests restore the normal one-minute refresh interval.
 
 | Message | What to check |
 | --- | --- |
@@ -62,6 +62,8 @@ Public viewing uses an anonymous reader and does not wait for an old editor logi
 The earlier generic message about applying `public-view` SQL did not distinguish these failures. After deploying the latest version, use the new error to decide which step is needed.
 
 If the Supabase dashboard reports 100% CPU, use its **Troubleshoot** options to inspect query activity and resource usage. The app’s timeout alone does not identify the CPU-intensive query. Close unused website tabs while investigating. Compute upgrades are managed in Supabase; only select a free upgrade if the dashboard explicitly offers it at no additional cost.
+
+The app keeps one shared snapshot per open tab. It checks just the revision once per minute and downloads players, photos, sessions, and video metadata only when that revision changes. Session/video components reuse that snapshot and do not start separate database polling loops. Concurrent reads are combined; confirming an uncertain save always uses a fresh read so video cleanup cannot delete an already-saved clip.
 
 ## Bring over existing records
 

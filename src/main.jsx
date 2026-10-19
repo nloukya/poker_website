@@ -517,7 +517,7 @@ function App() {
               <h2>How to use</h2>
               <p className="modal-description">
                 {cloud
-                  ? "Anyone with the link can view players, sessions, photos, and videos. Sign in with an approved account to edit. Changes refresh within 15 seconds."
+                  ? "Anyone with the link can view players, sessions, photos, and videos. Sign in with an approved account to edit. Changes refresh within a minute, or when you return to the tab."
                   : "Add players, record sessions, and track net winnings. Records and videos are stored in this browser. Export records in Settings and download videos separately."}
               </p>
             </>

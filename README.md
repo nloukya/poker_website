@@ -40,6 +40,8 @@ Deploy the `dist` directory to any static hosting service. Navigation uses URL h
 
 Six demo players and eight balanced sample games are included. Dates are relative to the first visit. Use **Settings → Clear demo data** to start your own table. Clearing removes all current players and games, including any you added; export a backup first if needed.
 
+Shared mode checks for updates once per minute while visible and when returning to the tab. It reads only a revision number while data is unchanged, shares one cached snapshot across record/video views, and fetches the full record after a change. Your own saves appear immediately. No additional SQL migration is needed for these read optimizations.
+
 ## Storage and privacy
 
 In local mode (without Supabase configuration), records and resized player photos are stored in this browser’s `localStorage`. Video files are stored separately in IndexedDB. No account, database, external API, or credentials are needed. Records do not automatically sync between browsers or devices. Export backups regularly and before clearing browser data. Restoring a backup replaces current records. JSON backups include player traits and session results, but **do not include videos**. Download videos individually from the highlight reel. Restoring a backup keeps existing clips only for matching session IDs; clips for sessions removed by the restore are discarded.
@@ -85,5 +87,5 @@ The Playwright configuration reuses an existing development server or starts one
 - `src/data.js` — demo records, financial calculations, date filters, and validation.
 - `src/styles.css`, `src/club.css`, `src/player-cards.css`, and `src/graduation.css` — responsive layouts, cartoon cards, and the cosmic color theme.
 - `public/art/` — original space illustrations, bundled locally and included in the standalone HTML export.
-- `tests/data.test.js` and `tests/media.test.js` — calculation, ranking, and upload validation tests.
+- `tests/data.test.js` and `tests/media.test.js` — calculation, ranking, upload validation, request-error classification, and shared-reader concurrency tests.
 - `tests/browser/club.spec.js` — desktop/mobile browser regression tests.

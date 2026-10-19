@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { createPollingSchedule } from "./polling";
+import { createPollingSchedule, POLL_INTERVAL_MS } from "./polling";
 import {
   cloud,
   readSharedTable,
@@ -53,7 +53,7 @@ export function useTableRecords(loadLocal) {
     refresh();
     const interval = setInterval(() => {
       if (!document.hidden && polling.current.ready()) refresh();
-    }, 15000);
+    }, POLL_INTERVAL_MS);
     window.addEventListener("focus", refresh);
     window.addEventListener("online", refresh);
     window.addEventListener(CLOUD_CHANGE_EVENT, refresh);

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { sharedReadError } from "./shared-errors.js";
+import { createSharedReader } from "./shared-reader.js";
 
 const url = import.meta.env?.VITE_SUPABASE_URL;
 const key = import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -10,13 +11,13 @@ const publicReader =
   url && key ? createClient(url, key, { accessToken: async () => null }) : null;
 export const CLOUD_CHANGE_EVENT = "sobersem3-cloud-change";
 
-export async function readSharedTable() {
+async function fetchSharedColumns(columns) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12000);
   try {
     const { data, error, status } = await publicReader
       .from("club_state")
-      .select("payload, revision, clip_manifest")
+      .select(columns)
       .eq("id", 1)
       .single()
       .abortSignal(controller.signal)
@@ -30,6 +31,13 @@ export async function readSharedTable() {
     clearTimeout(timer);
   }
 }
+
+const sharedReader = createSharedReader(fetchSharedColumns, {
+  onChange: () =>
+    globalThis.dispatchEvent(new Event("poker-face-media-change")),
+});
+export const readSharedTable = (options) => sharedReader.read(options);
+export const peekSharedTable = () => sharedReader.peek();
 
 export async function saveSharedTable(payload, revision, clips = {}) {
   const { data, error } = await cloud.rpc("save_club_state", {
@@ -48,7 +56,7 @@ export async function saveSharedTable(payload, revision, clips = {}) {
       "Couldn’t save to the shared table. Check your connection and try again.",
     );
   }
-  return data;
+  return sharedReader.remember(data);
 }
 
 export async function stageCloudClips(sessionId, additions) {
@@ -93,7 +101,7 @@ export async function removeCloudFiles(clips) {
 export async function discardStagedClips(clips) {
   if (!clips.length) return;
   try {
-    const row = await readSharedTable();
+    const row = await readSharedTable({ fresh: true });
     const saved = new Set(row.clip_manifest.map((c) => c.path));
     await removeCloudFiles(clips.filter((c) => !saved.has(c.path)));
   } catch {
